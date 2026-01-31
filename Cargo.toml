@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-slint = { version = "1.6", features = ["std"] }
+slint = { version = "1.5", features = ["std"] }
 chrono = "0.4"
 winreg = "0.10"
 cfg-if = "1.0"
@@ -17,7 +17,7 @@ cocoa = "0.24"
 objc = "0.2"
 
 [build-dependencies]
-slint-build = "1.6"
+slint-build = "1.14"
 
 [profile.release]
 opt-level = 3

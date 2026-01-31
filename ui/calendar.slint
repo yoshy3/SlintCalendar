@@ -1,5 +1,11 @@
 import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
 
+// サイズを保持する構造体を定義する
+export struct Size {
+    width: length,
+    height: length,
+}
+
 component DayCell inherits Rectangle {
     in property <int> day-num;
     in property <int> weekday; // 0=Sun .. 6=Sat
@@ -14,7 +20,7 @@ component DayCell inherits Rectangle {
         text: root.day-num > 0 ? ("" + root.day-num) : "";
         horizontal-alignment: center;
         vertical-alignment: center;
-        font-size: 18 * root.scale * 1px;
+        font-size: 28 * root.scale * 1px;
         color: root.day-num > 0 ? (
             root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : (
                 root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000)
@@ -59,47 +65,65 @@ component IconButton inherits Rectangle {
 
 export component MainWindow inherits Window {
     title: "Slint Calendar";
-    min-width: 360px;
-    min-height: 320px;
-    // `scale` is provided by the application (Rust) to avoid binding loops.
-    in-out property <float> scale: 1.0;
+    min-width: 210px;
+    min-height: 350px;
+
+    // `scale` is calculated based on the window's width to provide responsive UI scaling.
+    property <float> scale: {
+        let base = (root.width / 1px) / 600.0;
+        // Clamp the scale factor to a reasonable range to prevent extreme sizes.
+        return base < 0.4 ? 0.4 : (base > 3.0 ? 3.0 : base);
+    }
     in-out property <bool> darkMode: false;
     background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
+    // ウィンドウのサイズを Size 構造体型のプロパティで保持する
+    out property<Size> window-size: { width: root.width, height: root.height };
+
+    callback tick;
+
+    timer := Timer {
+        interval: 1s;
+        running: true;
+        triggered() => {
+            tick();
+        }
+    }
+
     VerticalBox {
-        spacing: 10px;
-        padding: 10px;
+        spacing: 10px * root.scale;
+        padding: 10px * root.scale;
 
         // Header with month/year and navigation
         HorizontalBox {
             alignment: center;
             spacing: 10px;
 
-            IconButton { label: "←"; btn-width: 48px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.prev-month(); } }
+            IconButton { label: "←"; btn-width: 48px * root.scale; btn-height: 48px * root.scale; darkMode: root.darkMode; clicked => { root.prev-month(); } }
 
             Text {
                 text: root.current-month;
-                font-size: 24 * root.scale * 1px;
+                font-size: 28 * root.scale * 1px;
                 font-weight: 700;
                 color: root.darkMode ? #e6e6e6 : #222222;
             }
 
-            IconButton { label: "→"; btn-width: 48px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.next-month(); } }
-            IconButton { label: "今日"; btn-width: 80px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.go-today(); } }
-            IconButton { label: root.darkMode ? "☀" : "🌙"; btn-width: 56px; btn-height: 40px; darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
+            IconButton { label: "→"; btn-width: 48px * root.scale; btn-height: 48px * root.scale; darkMode: root.darkMode; clicked => { root.next-month(); } }
+            IconButton { label: "今日"; btn-width: 80px * root.scale; btn-height: 48px * root.scale; darkMode: root.darkMode; clicked => { root.go-today(); } }
+            IconButton { label: root.darkMode ? "☀" : "🌙"; btn-width: 56px * root.scale; btn-height: 40px * root.scale; darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
         }
 
         // Day labels (Japanese)
         HorizontalBox {
             spacing: 5 * root.scale * 1px;
             alignment: center;
-            Text { text: "日"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #ff6b6b : #d9534f; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "月"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "火"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "水"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "木"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "金"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
-            Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #60a5fa : #3b82f6; font-size: 16 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "日"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #ff6b6b : #d9534f; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "月"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "火"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "水"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "木"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "金"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
+            Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #60a5fa : #3b82f6; font-size: 28 * root.scale * 1px; width: 64 * root.scale * 1px; }
         }
 
         // Separator under weekday header
@@ -214,18 +238,6 @@ export component MainWindow inherits Window {
             return days[index];
         }
         return 0;
-    }
-
-    // Update `scale` from the window width on the UI thread to avoid
-    // cross-thread latency and binding loops. This assigns `root.scale`
-    // imperatively, which breaks reactive binding cycles.
-    Timer {
-        interval: 60ms;
-        running: true;
-        triggered => {
-            let base = (root.width / 1px) / 600.0;
-            root.scale = base < 0.6 ? 0.6 : (base > 1.8 ? 1.8 : base);
-        }
     }
 
 }

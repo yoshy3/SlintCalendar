@@ -10,18 +10,13 @@ fn main() {
     // detect system dark mode on Windows
     let dark_mode = system_dark_mode();
 
-    let main_window = MainWindow::new().unwrap();
+    let main_window: MainWindow = MainWindow::new().unwrap();
     main_window.set_darkMode(dark_mode);
-    // Provide an initial scale and register a handler for width changes from UI.
-    main_window.set_scale(1.0);
+
     let current_date = Local::now();
 
     // Set initial calendar
     update_calendar(&main_window, current_date);
-
-    // Scale is now updated by the UI (Timer) directly; no width callback needed.
-
-    // Native polling threads removed — UI performs scale updates directly now.
 
     let main_window_weak = main_window.as_weak();
     main_window.on_prev_month(move || {
@@ -86,6 +81,20 @@ fn main() {
     main_window.on_day_selected(move |_day_idx: i32| {
         let _window = main_window_weak.upgrade().unwrap();
         // The selected-date is already updated in the UI
+    });
+
+    let main_window_weak = main_window.as_weak();
+    main_window.on_tick(move || {
+        let window = main_window_weak.upgrade().unwrap();
+        let size = window.get_window_size();
+        // 標準出力に出す
+        println!(
+            "Window Rect Changed: ({},{}) {}x{}",
+            window.window().position().x,
+            window.window().position().y,
+            size.width,
+            size.height
+        );
     });
 
     main_window.run().unwrap();
