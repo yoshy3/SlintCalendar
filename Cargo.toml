@@ -7,6 +7,14 @@ edition = "2021"
 slint = { version = "1.6", features = ["std"] }
 chrono = "0.4"
 winreg = "0.10"
+cfg-if = "1.0"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser", "windef"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "0.24"
+objc = "0.2"
 
 [build-dependencies]
 slint-build = "1.6"
