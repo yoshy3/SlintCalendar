@@ -61,12 +61,15 @@ export component MainWindow inherits Window {
     title: "Slint Calendar";
     min-width: 360px;
     min-height: 320px;
-    // `scale` is calculated based on the window's width to provide responsive UI scaling.
-    property <float> scale: {
-        let base = (root.width / 1px) / 600.0;
-        // Clamp the scale factor to a reasonable range to prevent extreme sizes.
-        return base < 0.6 ? 0.6 : (base > 1.8 ? 1.8 : base);
-    }
+    // `scale` is provided by the host (Rust) to avoid binding loops.
+    in-out property <float> scale: 1.0;
+    // persisted window metrics (pixels)
+    in-out property <float> savedWidthPx: 0.0;
+    in-out property <float> savedHeightPx: 0.0;
+    in-out property <float> savedXPx: 0.0;
+    in-out property <float> savedYPx: 0.0;
+    // callback to request saving current window metrics (width, height, x, y in px)
+    callback save-window-metrics(float, float, float, float);
     in-out property <bool> darkMode: false;
     background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
@@ -198,6 +201,38 @@ export component MainWindow inherits Window {
         }
 
         // (selected-date display removed)
+    }
+
+    // Restore saved size once shortly after startup and periodically request saving
+    // Restore Timer: triggers once to apply saved width/height (if available)
+    Timer {
+        running: true;
+        interval: 50ms;
+        triggered => {
+            if root.savedWidthPx > 0.0 {
+                root.width = root.savedWidthPx * 1px;
+            }
+            if root.savedHeightPx > 0.0 {
+                root.height = root.savedHeightPx * 1px;
+            }
+            if root.savedXPx > 0.0 {
+                root.x = root.savedXPx * 1px;
+            }
+            if root.savedYPx > 0.0 {
+                root.y = root.savedYPx * 1px;
+            }
+            // stop further triggers
+            self.running = false;
+        }
+    }
+
+    // Periodic save: send current width/height to the host to persist
+    Timer {
+        running: true;
+        interval: 1500ms;
+        triggered => {
+            root.save-window-metrics(root.width / 1px, root.height / 1px, root.x / 1px, root.y / 1px);
+        }
     }
 
     // Callbacks

@@ -1,6 +1,11 @@
 slint::include_modules!();
 
 use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
+use dirs;
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::io::Write;
+use std::path::PathBuf;
 #[cfg(windows)]
 use winreg::enums::HKEY_CURRENT_USER;
 #[cfg(windows)]
@@ -12,6 +17,18 @@ fn main() {
 
     let main_window = MainWindow::new().unwrap();
     main_window.set_darkMode(dark_mode);
+
+    // Load persisted window metrics (if any) and pass to UI so it can restore size and position.
+    if let Some(cfg) = load_window_metrics() {
+        main_window.set_savedWidthPx(cfg.width);
+        main_window.set_savedHeightPx(cfg.height);
+        if let Some(x) = cfg.x {
+            main_window.set_savedXPx(x as f32);
+        }
+        if let Some(y) = cfg.y {
+            main_window.set_savedYPx(y as f32);
+        }
+    }
 
     let current_date = Local::now();
 
@@ -81,6 +98,22 @@ fn main() {
     main_window.on_day_selected(move |_day_idx: i32| {
         let _window = main_window_weak.upgrade().unwrap();
         // The selected-date is already updated in the UI
+    });
+
+    // Handler: receive periodic save requests from the UI and persist them.
+    let main_window_weak = main_window.as_weak();
+    main_window.on_save_window_metrics(move |w: f32, h: f32, x: f32, y: f32| {
+        let _window = main_window_weak.upgrade();
+        // write metrics (store position rounded to integer)
+        let cfg = WindowMetrics {
+            width: w,
+            height: h,
+            x: Some(x.round() as i32),
+            y: Some(y.round() as i32),
+        };
+        if let Err(e) = save_window_metrics(&cfg) {
+            eprintln!("Failed to save window metrics: {}", e);
+        }
     });
 
     main_window.run().unwrap();
@@ -165,4 +198,45 @@ fn system_dark_mode() -> bool {
 #[cfg(all(not(windows), not(target_os = "macos")))]
 fn system_dark_mode() -> bool {
     false
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct WindowMetrics {
+    width: f32,
+    height: f32,
+    x: Option<i32>,
+    y: Option<i32>,
+}
+
+fn config_file_path() -> Option<PathBuf> {
+    if let Some(mut dir) = dirs::config_dir() {
+        dir.push("slint_calendar");
+        let _ = fs::create_dir_all(&dir);
+        dir.push("window_metrics.json");
+        return Some(dir);
+    }
+    None
+}
+
+fn load_window_metrics() -> Option<WindowMetrics> {
+    let path = config_file_path()?;
+    if path.exists() {
+        if let Ok(data) = fs::read_to_string(&path) {
+            if let Ok(cfg) = serde_json::from_str::<WindowMetrics>(&data) {
+                return Some(cfg);
+            }
+        }
+    }
+    None
+}
+
+fn save_window_metrics(cfg: &WindowMetrics) -> Result<(), std::io::Error> {
+    if let Some(path) = config_file_path() {
+        let tmp = path.with_extension("json.tmp");
+        let serialized = serde_json::to_string_pretty(cfg).unwrap_or_default();
+        let mut f = fs::File::create(&tmp)?;
+        f.write_all(serialized.as_bytes())?;
+        fs::rename(tmp, path)?;
+    }
+    Ok(())
 }
