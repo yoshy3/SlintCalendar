@@ -10,9 +10,10 @@ component DayCell inherits Rectangle {
     height: 60px;
     
     Text {
-        text: root.day-num > 0 ? root.day-num : "";
+        text: root.day-num > 0 ? ("" + root.day-num) : "";
         horizontal-alignment: center;
         vertical-alignment: center;
+        color: #000000;
     }
     
     TouchArea {
@@ -39,7 +40,8 @@ export component MainWindow inherits Window {
 
             Button {
                 text: "←";
-                width: 40px;
+                width: 48px;
+                height: 48px;
                 clicked => {
                     root.prev-month();
                 }
@@ -49,11 +51,13 @@ export component MainWindow inherits Window {
                 text: root.current-month;
                 font-size: 24px;
                 font-weight: 700;
+                color: #222222;
             }
 
             Button {
                 text: "→";
-                width: 40px;
+                width: 48px;
+                height: 48px;
                 clicked => {
                     root.next-month();
                 }
@@ -61,6 +65,8 @@ export component MainWindow inherits Window {
 
             Button {
                 text: "Today";
+                width: 80px;
+                height: 48px;
                 clicked => {
                     root.go-today();
                 }
@@ -70,85 +76,85 @@ export component MainWindow inherits Window {
         // Day labels
         HorizontalBox {
             spacing: 5px;
-            Text { text: "Sun"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Mon"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Tue"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Wed"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Thu"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Fri"; font-weight: 700; horizontal-alignment: center; width: 100%; }
-            Text { text: "Sat"; font-weight: 700; horizontal-alignment: center; width: 100%; }
+            Text { text: "Sun"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Mon"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Tue"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Wed"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Thu"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Fri"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            Text { text: "Sat"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
         }
 
         // Calendar grid - Week 1
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(0); day-clicked => { root.day-selected(0); } }
-            DayCell { day-num: root.get-day(1); day-clicked => { root.day-selected(1); } }
-            DayCell { day-num: root.get-day(2); day-clicked => { root.day-selected(2); } }
-            DayCell { day-num: root.get-day(3); day-clicked => { root.day-selected(3); } }
-            DayCell { day-num: root.get-day(4); day-clicked => { root.day-selected(4); } }
-            DayCell { day-num: root.get-day(5); day-clicked => { root.day-selected(5); } }
-            DayCell { day-num: root.get-day(6); day-clicked => { root.day-selected(6); } }
+            DayCell { day-num: root.get-day(0); day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
+            DayCell { day-num: root.get-day(1); day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
+            DayCell { day-num: root.get-day(2); day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
+            DayCell { day-num: root.get-day(3); day-clicked => { if (root.get-day(3) > 0) { root.selected-date = "Selected: " + root.get-day(3); root.day-selected(3); } } }
+            DayCell { day-num: root.get-day(4); day-clicked => { if (root.get-day(4) > 0) { root.selected-date = "Selected: " + root.get-day(4); root.day-selected(4); } } }
+            DayCell { day-num: root.get-day(5); day-clicked => { if (root.get-day(5) > 0) { root.selected-date = "Selected: " + root.get-day(5); root.day-selected(5); } } }
+            DayCell { day-num: root.get-day(6); day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
         }
 
         // Week 2
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(7); day-clicked => { root.day-selected(7); } }
-            DayCell { day-num: root.get-day(8); day-clicked => { root.day-selected(8); } }
-            DayCell { day-num: root.get-day(9); day-clicked => { root.day-selected(9); } }
-            DayCell { day-num: root.get-day(10); day-clicked => { root.day-selected(10); } }
-            DayCell { day-num: root.get-day(11); day-clicked => { root.day-selected(11); } }
-            DayCell { day-num: root.get-day(12); day-clicked => { root.day-selected(12); } }
-            DayCell { day-num: root.get-day(13); day-clicked => { root.day-selected(13); } }
+            DayCell { day-num: root.get-day(7); day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
+            DayCell { day-num: root.get-day(8); day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
+            DayCell { day-num: root.get-day(9); day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
+            DayCell { day-num: root.get-day(10); day-clicked => { if (root.get-day(10) > 0) { root.selected-date = "Selected: " + root.get-day(10); root.day-selected(10); } } }
+            DayCell { day-num: root.get-day(11); day-clicked => { if (root.get-day(11) > 0) { root.selected-date = "Selected: " + root.get-day(11); root.day-selected(11); } } }
+            DayCell { day-num: root.get-day(12); day-clicked => { if (root.get-day(12) > 0) { root.selected-date = "Selected: " + root.get-day(12); root.day-selected(12); } } }
+            DayCell { day-num: root.get-day(13); day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
         }
 
         // Week 3
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(14); day-clicked => { root.day-selected(14); } }
-            DayCell { day-num: root.get-day(15); day-clicked => { root.day-selected(15); } }
-            DayCell { day-num: root.get-day(16); day-clicked => { root.day-selected(16); } }
-            DayCell { day-num: root.get-day(17); day-clicked => { root.day-selected(17); } }
-            DayCell { day-num: root.get-day(18); day-clicked => { root.day-selected(18); } }
-            DayCell { day-num: root.get-day(19); day-clicked => { root.day-selected(19); } }
-            DayCell { day-num: root.get-day(20); day-clicked => { root.day-selected(20); } }
+            DayCell { day-num: root.get-day(14); day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
+            DayCell { day-num: root.get-day(15); day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
+            DayCell { day-num: root.get-day(16); day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
+            DayCell { day-num: root.get-day(17); day-clicked => { if (root.get-day(17) > 0) { root.selected-date = "Selected: " + root.get-day(17); root.day-selected(17); } } }
+            DayCell { day-num: root.get-day(18); day-clicked => { if (root.get-day(18) > 0) { root.selected-date = "Selected: " + root.get-day(18); root.day-selected(18); } } }
+            DayCell { day-num: root.get-day(19); day-clicked => { if (root.get-day(19) > 0) { root.selected-date = "Selected: " + root.get-day(19); root.day-selected(19); } } }
+            DayCell { day-num: root.get-day(20); day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
         }
 
         // Week 4
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(21); day-clicked => { root.day-selected(21); } }
-            DayCell { day-num: root.get-day(22); day-clicked => { root.day-selected(22); } }
-            DayCell { day-num: root.get-day(23); day-clicked => { root.day-selected(23); } }
-            DayCell { day-num: root.get-day(24); day-clicked => { root.day-selected(24); } }
-            DayCell { day-num: root.get-day(25); day-clicked => { root.day-selected(25); } }
-            DayCell { day-num: root.get-day(26); day-clicked => { root.day-selected(26); } }
-            DayCell { day-num: root.get-day(27); day-clicked => { root.day-selected(27); } }
+            DayCell { day-num: root.get-day(21); day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
+            DayCell { day-num: root.get-day(22); day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
+            DayCell { day-num: root.get-day(23); day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
+            DayCell { day-num: root.get-day(24); day-clicked => { if (root.get-day(24) > 0) { root.selected-date = "Selected: " + root.get-day(24); root.day-selected(24); } } }
+            DayCell { day-num: root.get-day(25); day-clicked => { if (root.get-day(25) > 0) { root.selected-date = "Selected: " + root.get-day(25); root.day-selected(25); } } }
+            DayCell { day-num: root.get-day(26); day-clicked => { if (root.get-day(26) > 0) { root.selected-date = "Selected: " + root.get-day(26); root.day-selected(26); } } }
+            DayCell { day-num: root.get-day(27); day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
         }
 
         // Week 5
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(28); day-clicked => { root.day-selected(28); } }
-            DayCell { day-num: root.get-day(29); day-clicked => { root.day-selected(29); } }
-            DayCell { day-num: root.get-day(30); day-clicked => { root.day-selected(30); } }
-            DayCell { day-num: root.get-day(31); day-clicked => { root.day-selected(31); } }
-            DayCell { day-num: root.get-day(32); day-clicked => { root.day-selected(32); } }
-            DayCell { day-num: root.get-day(33); day-clicked => { root.day-selected(33); } }
-            DayCell { day-num: root.get-day(34); day-clicked => { root.day-selected(34); } }
+            DayCell { day-num: root.get-day(28); day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
+            DayCell { day-num: root.get-day(29); day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
+            DayCell { day-num: root.get-day(30); day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
+            DayCell { day-num: root.get-day(31); day-clicked => { if (root.get-day(31) > 0) { root.selected-date = "Selected: " + root.get-day(31); root.day-selected(31); } } }
+            DayCell { day-num: root.get-day(32); day-clicked => { if (root.get-day(32) > 0) { root.selected-date = "Selected: " + root.get-day(32); root.day-selected(32); } } }
+            DayCell { day-num: root.get-day(33); day-clicked => { if (root.get-day(33) > 0) { root.selected-date = "Selected: " + root.get-day(33); root.day-selected(33); } } }
+            DayCell { day-num: root.get-day(34); day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
         }
 
         // Week 6
         HorizontalBox {
             spacing: 5px;
-            DayCell { day-num: root.get-day(35); day-clicked => { root.day-selected(35); } }
-            DayCell { day-num: root.get-day(36); day-clicked => { root.day-selected(36); } }
-            DayCell { day-num: root.get-day(37); day-clicked => { root.day-selected(37); } }
-            DayCell { day-num: root.get-day(38); day-clicked => { root.day-selected(38); } }
-            DayCell { day-num: root.get-day(39); day-clicked => { root.day-selected(39); } }
-            DayCell { day-num: root.get-day(40); day-clicked => { root.day-selected(40); } }
-            DayCell { day-num: root.get-day(41); day-clicked => { root.day-selected(41); } }
+            DayCell { day-num: root.get-day(35); day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
+            DayCell { day-num: root.get-day(36); day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
+            DayCell { day-num: root.get-day(37); day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
+            DayCell { day-num: root.get-day(38); day-clicked => { if (root.get-day(38) > 0) { root.selected-date = "Selected: " + root.get-day(38); root.day-selected(38); } } }
+            DayCell { day-num: root.get-day(39); day-clicked => { if (root.get-day(39) > 0) { root.selected-date = "Selected: " + root.get-day(39); root.day-selected(39); } } }
+            DayCell { day-num: root.get-day(40); day-clicked => { if (root.get-day(40) > 0) { root.selected-date = "Selected: " + root.get-day(40); root.day-selected(40); } } }
+            DayCell { day-num: root.get-day(41); day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
         }
 
         // Selected date display

@@ -1,6 +1,6 @@
 slint::include_modules!();
 
-use chrono::{DateTime, Datelike, Local, NaiveDate};
+use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
 
 fn main() {
     let main_window = MainWindow::new().unwrap();
@@ -10,21 +10,80 @@ fn main() {
     update_calendar(&main_window, current_date);
 
     let main_window_weak = main_window.as_weak();
-    let mut prev_date = current_date;
     main_window.on_prev_month(move || {
         let window = main_window_weak.upgrade().unwrap();
-        prev_date = prev_date.with_day(1).unwrap() - chrono::Duration::days(1);
-        prev_date = prev_date.with_day(1).unwrap();
-        update_calendar(&window, prev_date);
+        // parse current displayed month/year
+        let cur = window.get_current_month();
+        let parts: Vec<&str> = cur.split_whitespace().collect();
+        if parts.len() >= 2 {
+            let month_name = parts[0];
+            let year: i32 = parts[1].parse().unwrap_or_else(|_| Local::now().year());
+            let month = match month_name {
+                "January" => 1,
+                "February" => 2,
+                "March" => 3,
+                "April" => 4,
+                "May" => 5,
+                "June" => 6,
+                "July" => 7,
+                "August" => 8,
+                "September" => 9,
+                "October" => 10,
+                "November" => 11,
+                "December" => 12,
+                _ => Local::now().month(),
+            };
+            // compute previous month
+            let (ny, nm) = if month == 1 {
+                (year - 1, 12)
+            } else {
+                (year, month - 1)
+            };
+            let naive = NaiveDate::from_ymd_opt(ny, nm, 1).unwrap();
+            let dt = Local
+                .from_local_datetime(&naive.and_hms_opt(0, 0, 0).unwrap())
+                .single()
+                .unwrap_or_else(|| Local.from_local_datetime(&naive.and_hms(0, 0, 0)).unwrap());
+            update_calendar(&window, dt);
+        }
     });
 
     let main_window_weak = main_window.as_weak();
-    let mut next_date = current_date;
     main_window.on_next_month(move || {
         let window = main_window_weak.upgrade().unwrap();
-        next_date = next_date.with_day(1).unwrap() + chrono::Duration::days(32);
-        next_date = next_date.with_day(1).unwrap();
-        update_calendar(&window, next_date);
+        let cur = window.get_current_month();
+        let parts: Vec<&str> = cur.split_whitespace().collect();
+        if parts.len() >= 2 {
+            let month_name = parts[0];
+            let year: i32 = parts[1].parse().unwrap_or_else(|_| Local::now().year());
+            let month = match month_name {
+                "January" => 1,
+                "February" => 2,
+                "March" => 3,
+                "April" => 4,
+                "May" => 5,
+                "June" => 6,
+                "July" => 7,
+                "August" => 8,
+                "September" => 9,
+                "October" => 10,
+                "November" => 11,
+                "December" => 12,
+                _ => Local::now().month(),
+            };
+            // compute next month
+            let (ny, nm) = if month == 12 {
+                (year + 1, 1)
+            } else {
+                (year, month + 1)
+            };
+            let naive = NaiveDate::from_ymd_opt(ny, nm, 1).unwrap();
+            let dt = Local
+                .from_local_datetime(&naive.and_hms_opt(0, 0, 0).unwrap())
+                .single()
+                .unwrap_or_else(|| Local.from_local_datetime(&naive.and_hms(0, 0, 0)).unwrap());
+            update_calendar(&window, dt);
+        }
     });
 
     let main_window_weak = main_window.as_weak();
