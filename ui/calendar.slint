@@ -68,6 +68,27 @@ export component MainWindow inherits Window {
     min-width: 210px;
     min-height: 350px;
 
+    // persisted window metrics (pixels)
+    in-out property <float> savedWidthPx: 0.0;
+    in-out property <float> savedHeightPx: 0.0;
+
+    // Restore saved size once shortly after startup and periodically request saving
+    // Restore Timer: triggers once to apply saved width/height (if available)
+    Timer {
+        running: true;
+        interval: 50ms;
+        triggered => {
+            if root.savedWidthPx > 0.0 {
+                root.width = root.savedWidthPx * 1px;
+            }
+            if root.savedHeightPx > 0.0 {
+                root.height = root.savedHeightPx * 1px;
+            }
+            // stop further triggers
+            self.running = false;
+        }
+    }
+
     // `scale` is calculated based on the window's width to provide responsive UI scaling.
     property <float> scale: {
         let base = (root.width / 1px) / 600.0;
@@ -89,6 +110,7 @@ export component MainWindow inherits Window {
             tick();
         }
     }
+
 
     VerticalBox {
         spacing: 10px * root.scale;
