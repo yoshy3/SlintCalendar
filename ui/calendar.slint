@@ -23,6 +23,33 @@ component DayCell inherits Rectangle {
     }
 }
 
+component IconButton inherits Rectangle {
+    in property <string> label;
+    in property <length> btn-width: 48px;
+    in property <length> btn-height: 48px;
+    callback clicked;
+    width: root.btn-width;
+    height: root.btn-height;
+    in property <brush> bgColor: #ffffff;
+    background: root.bgColor;
+    border-width: 1px;
+    border-color: #e6e6e6;
+    border-radius: 6px;
+
+    Text {
+        text: root.label;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        color: #222222;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    TouchArea {
+        clicked => { root.clicked(); }
+    }
+}
+
 export component MainWindow inherits Window {
     title: "Slint Calendar";
     width: 600px;
@@ -38,14 +65,7 @@ export component MainWindow inherits Window {
             alignment: center;
             spacing: 10px;
 
-            Button {
-                text: "←";
-                width: 48px;
-                height: 48px;
-                clicked => {
-                    root.prev-month();
-                }
-            }
+            IconButton { label: "←"; btn-width: 48px; btn-height: 48px; clicked => { root.prev-month(); } }
 
             Text {
                 text: root.current-month;
@@ -54,23 +74,9 @@ export component MainWindow inherits Window {
                 color: #222222;
             }
 
-            Button {
-                text: "→";
-                width: 48px;
-                height: 48px;
-                clicked => {
-                    root.next-month();
-                }
-            }
+            IconButton { label: "→"; btn-width: 48px; btn-height: 48px; clicked => { root.next-month(); } }
 
-            Button {
-                text: "Today";
-                width: 80px;
-                height: 48px;
-                clicked => {
-                    root.go-today();
-                }
-            }
+            IconButton { label: "Today"; btn-width: 80px; btn-height: 48px; clicked => { root.go-today(); } }
         }
 
         // Day labels

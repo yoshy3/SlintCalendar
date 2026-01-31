@@ -40,10 +40,12 @@ fn main() {
                 (year, month - 1)
             };
             let naive = NaiveDate::from_ymd_opt(ny, nm, 1).unwrap();
-            let dt = Local
-                .from_local_datetime(&naive.and_hms_opt(0, 0, 0).unwrap())
-                .single()
-                .unwrap_or_else(|| Local.from_local_datetime(&naive.and_hms(0, 0, 0)).unwrap());
+            let naive_dt = naive.and_hms_opt(0, 0, 0).expect("invalid time");
+            let dt = match Local.from_local_datetime(&naive_dt) {
+                chrono::LocalResult::Single(dt) => dt,
+                chrono::LocalResult::Ambiguous(dt, _) => dt,
+                chrono::LocalResult::None => Local::now(),
+            };
             update_calendar(&window, dt);
         }
     });
@@ -78,10 +80,12 @@ fn main() {
                 (year, month + 1)
             };
             let naive = NaiveDate::from_ymd_opt(ny, nm, 1).unwrap();
-            let dt = Local
-                .from_local_datetime(&naive.and_hms_opt(0, 0, 0).unwrap())
-                .single()
-                .unwrap_or_else(|| Local.from_local_datetime(&naive.and_hms(0, 0, 0)).unwrap());
+            let naive_dt = naive.and_hms_opt(0, 0, 0).expect("invalid time");
+            let dt = match Local.from_local_datetime(&naive_dt) {
+                chrono::LocalResult::Single(dt) => dt,
+                chrono::LocalResult::Ambiguous(dt, _) => dt,
+                chrono::LocalResult::None => Local::now(),
+            };
             update_calendar(&window, dt);
         }
     });
