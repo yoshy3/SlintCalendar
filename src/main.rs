@@ -178,5 +178,5 @@ fn system_dark_mode() -> bool {
 
 #[cfg(all(not(windows), not(target_os = "macos")))]
 fn system_dark_mode() -> bool {
-    false
+    true
 }
