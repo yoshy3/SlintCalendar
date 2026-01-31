@@ -3,12 +3,9 @@ import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
 component DayCell inherits Rectangle {
     in property <int> day-num;
     callback day-clicked;
-    
-    background: #ffffff;
-    border-width: 1px;
-    border-color: #cccccc;
-    height: 60px;
-    
+    width: 64px;
+    height: 64px;
+    background: transparent;
     Text {
         text: root.day-num > 0 ? ("" + root.day-num) : "";
         horizontal-alignment: center;
@@ -76,24 +73,27 @@ export component MainWindow inherits Window {
 
             IconButton { label: "→"; btn-width: 48px; btn-height: 48px; clicked => { root.next-month(); } }
 
-            IconButton { label: "Today"; btn-width: 80px; btn-height: 48px; clicked => { root.go-today(); } }
+            IconButton { label: "今日"; btn-width: 80px; btn-height: 48px; clicked => { root.go-today(); } }
         }
 
-        // Day labels
+        // Day labels (Japanese)
         HorizontalBox {
             spacing: 5px;
-            Text { text: "Sun"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Mon"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Tue"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Wed"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Thu"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Fri"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
-            Text { text: "Sat"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; }
+            alignment: center;
+            Text { text: "日"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "月"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "火"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "水"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "木"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "金"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
+            Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
         }
 
         // Calendar grid - Week 1
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 1;
             DayCell { day-num: root.get-day(0); day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
             DayCell { day-num: root.get-day(1); day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
             DayCell { day-num: root.get-day(2); day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
@@ -106,6 +106,8 @@ export component MainWindow inherits Window {
         // Week 2
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 2;
             DayCell { day-num: root.get-day(7); day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
             DayCell { day-num: root.get-day(8); day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
             DayCell { day-num: root.get-day(9); day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
@@ -118,6 +120,8 @@ export component MainWindow inherits Window {
         // Week 3
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 3;
             DayCell { day-num: root.get-day(14); day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
             DayCell { day-num: root.get-day(15); day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
             DayCell { day-num: root.get-day(16); day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
@@ -130,6 +134,8 @@ export component MainWindow inherits Window {
         // Week 4
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 4;
             DayCell { day-num: root.get-day(21); day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
             DayCell { day-num: root.get-day(22); day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
             DayCell { day-num: root.get-day(23); day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
@@ -142,6 +148,8 @@ export component MainWindow inherits Window {
         // Week 5
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 5;
             DayCell { day-num: root.get-day(28); day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
             DayCell { day-num: root.get-day(29); day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
             DayCell { day-num: root.get-day(30); day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
@@ -154,6 +162,8 @@ export component MainWindow inherits Window {
         // Week 6
         HorizontalBox {
             spacing: 5px;
+            alignment: center;
+            visible: root.num-rows >= 6;
             DayCell { day-num: root.get-day(35); day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
             DayCell { day-num: root.get-day(36); day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
             DayCell { day-num: root.get-day(37); day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
@@ -163,13 +173,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(41); day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
         }
 
-        // Selected date display
-        Text {
-            text: root.selected-date;
-            font-size: 14px;
-            color: #666666;
-            horizontal-alignment: center;
-        }
+        // (selected-date display removed)
     }
 
     // Callbacks
@@ -179,8 +183,9 @@ export component MainWindow inherits Window {
     callback day-selected(int);
 
     // Properties
-    in-out property <string> current-month: "January 2026";
+    in-out property <string> current-month: "2026年01月";
     in-out property <string> selected-date: "No date selected";
+    in-out property <int> num-rows: 6;
     in-out property <[int]> days: [0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,0,0,0,0];
 
     // Helper function

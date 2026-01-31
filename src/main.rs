@@ -12,27 +12,12 @@ fn main() {
     let main_window_weak = main_window.as_weak();
     main_window.on_prev_month(move || {
         let window = main_window_weak.upgrade().unwrap();
-        // parse current displayed month/year
+        // parse current displayed month/year in format yyyy年mm月 (or yyyy年m月)
         let cur = window.get_current_month();
-        let parts: Vec<&str> = cur.split_whitespace().collect();
-        if parts.len() >= 2 {
-            let month_name = parts[0];
-            let year: i32 = parts[1].parse().unwrap_or_else(|_| Local::now().year());
-            let month = match month_name {
-                "January" => 1,
-                "February" => 2,
-                "March" => 3,
-                "April" => 4,
-                "May" => 5,
-                "June" => 6,
-                "July" => 7,
-                "August" => 8,
-                "September" => 9,
-                "October" => 10,
-                "November" => 11,
-                "December" => 12,
-                _ => Local::now().month(),
-            };
+        let digits: String = cur.chars().filter(|c| c.is_ascii_digit()).collect();
+        if digits.len() >= 5 {
+            let year: i32 = digits[..4].parse().unwrap_or_else(|_| Local::now().year());
+            let month: u32 = digits[4..].parse().unwrap_or_else(|_| Local::now().month());
             // compute previous month
             let (ny, nm) = if month == 1 {
                 (year - 1, 12)
@@ -53,26 +38,12 @@ fn main() {
     let main_window_weak = main_window.as_weak();
     main_window.on_next_month(move || {
         let window = main_window_weak.upgrade().unwrap();
+        // parse current displayed month/year in format yyyy年mm月 (or yyyy年m月)
         let cur = window.get_current_month();
-        let parts: Vec<&str> = cur.split_whitespace().collect();
-        if parts.len() >= 2 {
-            let month_name = parts[0];
-            let year: i32 = parts[1].parse().unwrap_or_else(|_| Local::now().year());
-            let month = match month_name {
-                "January" => 1,
-                "February" => 2,
-                "March" => 3,
-                "April" => 4,
-                "May" => 5,
-                "June" => 6,
-                "July" => 7,
-                "August" => 8,
-                "September" => 9,
-                "October" => 10,
-                "November" => 11,
-                "December" => 12,
-                _ => Local::now().month(),
-            };
+        let digits: String = cur.chars().filter(|c| c.is_ascii_digit()).collect();
+        if digits.len() >= 5 {
+            let year: i32 = digits[..4].parse().unwrap_or_else(|_| Local::now().year());
+            let month: u32 = digits[4..].parse().unwrap_or_else(|_| Local::now().month());
             // compute next month
             let (ny, nm) = if month == 12 {
                 (year + 1, 1)
@@ -110,23 +81,8 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
     let year = date.year();
     let month = date.month();
 
-    // Format month and year display
-    let month_names = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    ];
-    let month_name = month_names[(month - 1) as usize];
-    window.set_current_month(format!("{} {}", month_name, year).into());
+    // Format month/year as Japanese: yyyy年mm月 (zero-padded month)
+    window.set_current_month(format!("{:04}年{:02}月", year, month).into());
 
     // Generate calendar grid
     let first_day = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
@@ -149,11 +105,17 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
     for day in 1..=days_in_month {
         days.push(day);
     }
-    // Pad to complete the grid (42 cells = 6 weeks * 7 days)
-    while days.len() < 42 {
+
+    // Determine number of week rows needed (4..=6)
+    let total_slots = first_weekday as i32 + days_in_month;
+    let num_rows = ((total_slots + 6) / 7) as i32; // ceiling division
+
+    // Pad to complete the grid (num_rows * 7 cells)
+    while days.len() < (num_rows as usize * 7) {
         days.push(0);
     }
 
-    // Set the days property
+    // Set the days and number of rows properties
     window.set_days(std::rc::Rc::new(slint::VecModel::from(days)).into());
+    window.set_num_rows(num_rows);
 }
