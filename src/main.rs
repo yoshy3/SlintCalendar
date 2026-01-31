@@ -1,9 +1,17 @@
 slint::include_modules!();
 
 use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
+#[cfg(windows)]
+use winreg::enums::HKEY_CURRENT_USER;
+#[cfg(windows)]
+use winreg::RegKey;
 
 fn main() {
+    // detect system dark mode on Windows
+    let dark_mode = system_dark_mode();
+
     let main_window = MainWindow::new().unwrap();
+    main_window.set_darkMode(dark_mode);
     let current_date = Local::now();
 
     // Set initial calendar
@@ -118,4 +126,42 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
     // Set the days and number of rows properties
     window.set_days(std::rc::Rc::new(slint::VecModel::from(days)).into());
     window.set_num_rows(num_rows);
+}
+
+// Return true if system prefers dark mode (Windows registry). Defaults to false.
+#[cfg(windows)]
+fn system_dark_mode() -> bool {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    if let Ok(key) =
+        hkcu.open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize")
+    {
+        if let Ok(val) = key.get_value::<u32, _>("AppsUseLightTheme") {
+            return val == 0; // 0 = dark, 1 = light
+        }
+    }
+    false
+}
+
+#[cfg(target_os = "macos")]
+fn system_dark_mode() -> bool {
+    // On macOS, use the `defaults` command to read AppleInterfaceStyle.
+    // If it returns "Dark", we consider system in dark mode.
+    use std::process::Command;
+    if let Ok(output) = Command::new("defaults")
+        .arg("read")
+        .arg("-g")
+        .arg("AppleInterfaceStyle")
+        .output()
+    {
+        if output.status.success() {
+            let out = String::from_utf8_lossy(&output.stdout);
+            return out.trim().eq_ignore_ascii_case("Dark");
+        }
+    }
+    false
+}
+
+#[cfg(all(not(windows), not(target_os = "macos")))]
+fn system_dark_mode() -> bool {
+    false
 }

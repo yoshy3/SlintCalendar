@@ -3,6 +3,7 @@ import { Button, VerticalBox, HorizontalBox } from "std-widgets.slint";
 component DayCell inherits Rectangle {
     in property <int> day-num;
     in property <int> weekday; // 0=Sun .. 6=Sat
+    in property <bool> darkMode: false;
     callback day-clicked;
     width: 64px;
     height: 64px;
@@ -11,7 +12,11 @@ component DayCell inherits Rectangle {
         text: root.day-num > 0 ? ("" + root.day-num) : "";
         horizontal-alignment: center;
         vertical-alignment: center;
-        color: root.day-num > 0 ? (root.weekday == 0 ? #d9534f : (root.weekday == 6 ? #3b82f6 : #000000)) : #000000;
+        color: root.day-num > 0 ? (
+            root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : (
+                root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000)
+            )
+        ) : (root.darkMode ? #9ca3af : #000000);
     }
     
     TouchArea {
@@ -25,11 +30,12 @@ component IconButton inherits Rectangle {
     in property <string> label;
     in property <length> btn-width: 48px;
     in property <length> btn-height: 48px;
+    in property <bool> darkMode: false;
     callback clicked;
     width: root.btn-width;
     height: root.btn-height;
     in property <brush> bgColor: #ffffff;
-    background: root.bgColor;
+    background: root.darkMode ? #2d3748 : root.bgColor;
     border-width: 1px;
     border-color: #e6e6e6;
     border-radius: 6px;
@@ -38,7 +44,7 @@ component IconButton inherits Rectangle {
         text: root.label;
         horizontal-alignment: center;
         vertical-alignment: center;
-        color: #222222;
+        color: root.darkMode ? #e6e6e6 : #222222;
         font-weight: 700;
         font-size: 14px;
     }
@@ -52,7 +58,8 @@ export component MainWindow inherits Window {
     title: "Slint Calendar";
     width: 600px;
     height: 700px;
-    background: @linear-gradient(90deg, #f0f0f0, #ffffff);
+    in-out property <bool> darkMode: false;
+    background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
     VerticalBox {
         spacing: 10px;
@@ -63,38 +70,38 @@ export component MainWindow inherits Window {
             alignment: center;
             spacing: 10px;
 
-            IconButton { label: "←"; btn-width: 48px; btn-height: 48px; clicked => { root.prev-month(); } }
+            IconButton { label: "←"; btn-width: 48px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.prev-month(); } }
 
             Text {
                 text: root.current-month;
                 font-size: 24px;
                 font-weight: 700;
-                color: #222222;
+                color: root.darkMode ? #e6e6e6 : #222222;
             }
 
-            IconButton { label: "→"; btn-width: 48px; btn-height: 48px; clicked => { root.next-month(); } }
-
-            IconButton { label: "今日"; btn-width: 80px; btn-height: 48px; clicked => { root.go-today(); } }
+            IconButton { label: "→"; btn-width: 48px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.next-month(); } }
+            IconButton { label: "今日"; btn-width: 80px; btn-height: 48px; darkMode: root.darkMode; clicked => { root.go-today(); } }
+            IconButton { label: root.darkMode ? "☀" : "🌙"; btn-width: 56px; btn-height: 40px; darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
         }
 
         // Day labels (Japanese)
         HorizontalBox {
             spacing: 5px;
             alignment: center;
-            Text { text: "日"; font-weight: 700; horizontal-alignment: center; color: #d9534f; font-size: 14px; width: 64px; }
-            Text { text: "月"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
-            Text { text: "火"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
-            Text { text: "水"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
-            Text { text: "木"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
-            Text { text: "金"; font-weight: 700; horizontal-alignment: center; color: #444444; font-size: 14px; width: 64px; }
-            Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: #3b82f6; font-size: 14px; width: 64px; }
+            Text { text: "日"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #ff6b6b : #d9534f; font-size: 14px; width: 64px; }
+            Text { text: "月"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 14px; width: 64px; }
+            Text { text: "火"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 14px; width: 64px; }
+            Text { text: "水"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 14px; width: 64px; }
+            Text { text: "木"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 14px; width: 64px; }
+            Text { text: "金"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #d1d5db : #444444; font-size: 14px; width: 64px; }
+            Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #60a5fa : #3b82f6; font-size: 14px; width: 64px; }
         }
 
         // Separator under weekday header
         Rectangle {
             width: 100%;
             height: 1px;
-            background: #e6e6e6;
+            background: root.darkMode ? #374151 : #e6e6e6;
         }
 
         // Calendar grid - Week 1
@@ -102,13 +109,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 1;
-            DayCell { day-num: root.get-day(0); weekday: 0; day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
-            DayCell { day-num: root.get-day(1); weekday: 1; day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
-            DayCell { day-num: root.get-day(2); weekday: 2; day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
-            DayCell { day-num: root.get-day(3); weekday: 3; day-clicked => { if (root.get-day(3) > 0) { root.selected-date = "Selected: " + root.get-day(3); root.day-selected(3); } } }
-            DayCell { day-num: root.get-day(4); weekday: 4; day-clicked => { if (root.get-day(4) > 0) { root.selected-date = "Selected: " + root.get-day(4); root.day-selected(4); } } }
-            DayCell { day-num: root.get-day(5); weekday: 5; day-clicked => { if (root.get-day(5) > 0) { root.selected-date = "Selected: " + root.get-day(5); root.day-selected(5); } } }
-            DayCell { day-num: root.get-day(6); weekday: 6; day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
+            DayCell { day-num: root.get-day(0); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
+            DayCell { day-num: root.get-day(1); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
+            DayCell { day-num: root.get-day(2); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
+            DayCell { day-num: root.get-day(3); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(3) > 0) { root.selected-date = "Selected: " + root.get-day(3); root.day-selected(3); } } }
+            DayCell { day-num: root.get-day(4); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(4) > 0) { root.selected-date = "Selected: " + root.get-day(4); root.day-selected(4); } } }
+            DayCell { day-num: root.get-day(5); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(5) > 0) { root.selected-date = "Selected: " + root.get-day(5); root.day-selected(5); } } }
+            DayCell { day-num: root.get-day(6); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
         }
 
         // Week 2
@@ -116,13 +123,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 2;
-            DayCell { day-num: root.get-day(7); weekday: 0; day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
-            DayCell { day-num: root.get-day(8); weekday: 1; day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
-            DayCell { day-num: root.get-day(9); weekday: 2; day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
-            DayCell { day-num: root.get-day(10); weekday: 3; day-clicked => { if (root.get-day(10) > 0) { root.selected-date = "Selected: " + root.get-day(10); root.day-selected(10); } } }
-            DayCell { day-num: root.get-day(11); weekday: 4; day-clicked => { if (root.get-day(11) > 0) { root.selected-date = "Selected: " + root.get-day(11); root.day-selected(11); } } }
-            DayCell { day-num: root.get-day(12); weekday: 5; day-clicked => { if (root.get-day(12) > 0) { root.selected-date = "Selected: " + root.get-day(12); root.day-selected(12); } } }
-            DayCell { day-num: root.get-day(13); weekday: 6; day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
+            DayCell { day-num: root.get-day(7); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
+            DayCell { day-num: root.get-day(8); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
+            DayCell { day-num: root.get-day(9); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
+            DayCell { day-num: root.get-day(10); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(10) > 0) { root.selected-date = "Selected: " + root.get-day(10); root.day-selected(10); } } }
+            DayCell { day-num: root.get-day(11); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(11) > 0) { root.selected-date = "Selected: " + root.get-day(11); root.day-selected(11); } } }
+            DayCell { day-num: root.get-day(12); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(12) > 0) { root.selected-date = "Selected: " + root.get-day(12); root.day-selected(12); } } }
+            DayCell { day-num: root.get-day(13); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
         }
 
         // Week 3
@@ -130,13 +137,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 3;
-            DayCell { day-num: root.get-day(14); weekday: 0; day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
-            DayCell { day-num: root.get-day(15); weekday: 1; day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
-            DayCell { day-num: root.get-day(16); weekday: 2; day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
-            DayCell { day-num: root.get-day(17); weekday: 3; day-clicked => { if (root.get-day(17) > 0) { root.selected-date = "Selected: " + root.get-day(17); root.day-selected(17); } } }
-            DayCell { day-num: root.get-day(18); weekday: 4; day-clicked => { if (root.get-day(18) > 0) { root.selected-date = "Selected: " + root.get-day(18); root.day-selected(18); } } }
-            DayCell { day-num: root.get-day(19); weekday: 5; day-clicked => { if (root.get-day(19) > 0) { root.selected-date = "Selected: " + root.get-day(19); root.day-selected(19); } } }
-            DayCell { day-num: root.get-day(20); weekday: 6; day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
+            DayCell { day-num: root.get-day(14); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
+            DayCell { day-num: root.get-day(15); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
+            DayCell { day-num: root.get-day(16); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
+            DayCell { day-num: root.get-day(17); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(17) > 0) { root.selected-date = "Selected: " + root.get-day(17); root.day-selected(17); } } }
+            DayCell { day-num: root.get-day(18); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(18) > 0) { root.selected-date = "Selected: " + root.get-day(18); root.day-selected(18); } } }
+            DayCell { day-num: root.get-day(19); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(19) > 0) { root.selected-date = "Selected: " + root.get-day(19); root.day-selected(19); } } }
+            DayCell { day-num: root.get-day(20); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
         }
 
         // Week 4
@@ -144,13 +151,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 4;
-            DayCell { day-num: root.get-day(21); weekday: 0; day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
-            DayCell { day-num: root.get-day(22); weekday: 1; day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
-            DayCell { day-num: root.get-day(23); weekday: 2; day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
-            DayCell { day-num: root.get-day(24); weekday: 3; day-clicked => { if (root.get-day(24) > 0) { root.selected-date = "Selected: " + root.get-day(24); root.day-selected(24); } } }
-            DayCell { day-num: root.get-day(25); weekday: 4; day-clicked => { if (root.get-day(25) > 0) { root.selected-date = "Selected: " + root.get-day(25); root.day-selected(25); } } }
-            DayCell { day-num: root.get-day(26); weekday: 5; day-clicked => { if (root.get-day(26) > 0) { root.selected-date = "Selected: " + root.get-day(26); root.day-selected(26); } } }
-            DayCell { day-num: root.get-day(27); weekday: 6; day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
+            DayCell { day-num: root.get-day(21); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
+            DayCell { day-num: root.get-day(22); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
+            DayCell { day-num: root.get-day(23); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
+            DayCell { day-num: root.get-day(24); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(24) > 0) { root.selected-date = "Selected: " + root.get-day(24); root.day-selected(24); } } }
+            DayCell { day-num: root.get-day(25); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(25) > 0) { root.selected-date = "Selected: " + root.get-day(25); root.day-selected(25); } } }
+            DayCell { day-num: root.get-day(26); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(26) > 0) { root.selected-date = "Selected: " + root.get-day(26); root.day-selected(26); } } }
+            DayCell { day-num: root.get-day(27); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
         }
 
         // Week 5
@@ -158,13 +165,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 5;
-            DayCell { day-num: root.get-day(28); weekday: 0; day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
-            DayCell { day-num: root.get-day(29); weekday: 1; day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
-            DayCell { day-num: root.get-day(30); weekday: 2; day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
-            DayCell { day-num: root.get-day(31); weekday: 3; day-clicked => { if (root.get-day(31) > 0) { root.selected-date = "Selected: " + root.get-day(31); root.day-selected(31); } } }
-            DayCell { day-num: root.get-day(32); weekday: 4; day-clicked => { if (root.get-day(32) > 0) { root.selected-date = "Selected: " + root.get-day(32); root.day-selected(32); } } }
-            DayCell { day-num: root.get-day(33); weekday: 5; day-clicked => { if (root.get-day(33) > 0) { root.selected-date = "Selected: " + root.get-day(33); root.day-selected(33); } } }
-            DayCell { day-num: root.get-day(34); weekday: 6; day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
+            DayCell { day-num: root.get-day(28); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
+            DayCell { day-num: root.get-day(29); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
+            DayCell { day-num: root.get-day(30); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
+            DayCell { day-num: root.get-day(31); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(31) > 0) { root.selected-date = "Selected: " + root.get-day(31); root.day-selected(31); } } }
+            DayCell { day-num: root.get-day(32); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(32) > 0) { root.selected-date = "Selected: " + root.get-day(32); root.day-selected(32); } } }
+            DayCell { day-num: root.get-day(33); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(33) > 0) { root.selected-date = "Selected: " + root.get-day(33); root.day-selected(33); } } }
+            DayCell { day-num: root.get-day(34); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
         }
 
         // Week 6
@@ -172,13 +179,13 @@ export component MainWindow inherits Window {
             spacing: 5px;
             alignment: center;
             visible: root.num-rows >= 6;
-            DayCell { day-num: root.get-day(35); weekday: 0; day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
-            DayCell { day-num: root.get-day(36); weekday: 1; day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
-            DayCell { day-num: root.get-day(37); weekday: 2; day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
-            DayCell { day-num: root.get-day(38); weekday: 3; day-clicked => { if (root.get-day(38) > 0) { root.selected-date = "Selected: " + root.get-day(38); root.day-selected(38); } } }
-            DayCell { day-num: root.get-day(39); weekday: 4; day-clicked => { if (root.get-day(39) > 0) { root.selected-date = "Selected: " + root.get-day(39); root.day-selected(39); } } }
-            DayCell { day-num: root.get-day(40); weekday: 5; day-clicked => { if (root.get-day(40) > 0) { root.selected-date = "Selected: " + root.get-day(40); root.day-selected(40); } } }
-            DayCell { day-num: root.get-day(41); weekday: 6; day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
+            DayCell { day-num: root.get-day(35); weekday: 0; darkMode: root.darkMode; day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
+            DayCell { day-num: root.get-day(36); weekday: 1; darkMode: root.darkMode; day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
+            DayCell { day-num: root.get-day(37); weekday: 2; darkMode: root.darkMode; day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
+            DayCell { day-num: root.get-day(38); weekday: 3; darkMode: root.darkMode; day-clicked => { if (root.get-day(38) > 0) { root.selected-date = "Selected: " + root.get-day(38); root.day-selected(38); } } }
+            DayCell { day-num: root.get-day(39); weekday: 4; darkMode: root.darkMode; day-clicked => { if (root.get-day(39) > 0) { root.selected-date = "Selected: " + root.get-day(39); root.day-selected(39); } } }
+            DayCell { day-num: root.get-day(40); weekday: 5; darkMode: root.darkMode; day-clicked => { if (root.get-day(40) > 0) { root.selected-date = "Selected: " + root.get-day(40); root.day-selected(40); } } }
+            DayCell { day-num: root.get-day(41); weekday: 6; darkMode: root.darkMode; day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
         }
 
         // (selected-date display removed)
