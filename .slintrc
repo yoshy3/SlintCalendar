@@ -1,0 +1,5 @@
+[build-system]
+backend-path = ".."
+
+[model-library]
+name = "Calendar"

@@ -1,0 +1,25 @@
+.DS_Store
+Thumbs.db
+*.bak
+
+# Cargo
+/target/
+Cargo.lock
+**/*.rs.bk
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+
+# OS
+.DS_Store
+.directory
