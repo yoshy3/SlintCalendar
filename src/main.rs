@@ -12,16 +12,11 @@ fn main() {
 
     let main_window = MainWindow::new().unwrap();
     main_window.set_darkMode(dark_mode);
-    // Provide an initial scale and register a handler for width changes from UI.
-    main_window.set_scale(1.0);
+
     let current_date = Local::now();
 
     // Set initial calendar
     update_calendar(&main_window, current_date);
-
-    // Scale is now updated by the UI (Timer) directly; no width callback needed.
-
-    // Native polling threads removed — UI performs scale updates directly now.
 
     let main_window_weak = main_window.as_weak();
     main_window.on_prev_month(move || {

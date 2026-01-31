@@ -61,8 +61,12 @@ export component MainWindow inherits Window {
     title: "Slint Calendar";
     min-width: 360px;
     min-height: 320px;
-    // `scale` is provided by the application (Rust) to avoid binding loops.
-    in-out property <float> scale: 1.0;
+    // `scale` is calculated based on the window's width to provide responsive UI scaling.
+    property <float> scale: {
+        let base = (root.width / 1px) / 600.0;
+        // Clamp the scale factor to a reasonable range to prevent extreme sizes.
+        return base < 0.6 ? 0.6 : (base > 1.8 ? 1.8 : base);
+    }
     in-out property <bool> darkMode: false;
     background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
@@ -214,18 +218,6 @@ export component MainWindow inherits Window {
             return days[index];
         }
         return 0;
-    }
-
-    // Update `scale` from the window width on the UI thread to avoid
-    // cross-thread latency and binding loops. This assigns `root.scale`
-    // imperatively, which breaks reactive binding cycles.
-    Timer {
-        interval: 60ms;
-        running: true;
-        triggered => {
-            let base = (root.width / 1px) / 600.0;
-            root.scale = base < 0.6 ? 0.6 : (base > 1.8 ? 1.8 : base);
-        }
     }
 
 }
