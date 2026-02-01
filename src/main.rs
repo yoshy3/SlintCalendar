@@ -1,3 +1,5 @@
+#![cfg_attr(windows, windows_subsystem = "windows")]
+
 slint::include_modules!();
 use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
 use jpholiday::jpholiday::JPHoliday;
