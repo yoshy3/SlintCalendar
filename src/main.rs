@@ -13,9 +13,10 @@ use winreg::RegKey;
 use winreg::enums::HKEY_CURRENT_USER;
 
 fn main() {
-    // detect system dark mode on Windows
+    // Windows のシステムダークモードを検出します
     let dark_mode = system_dark_mode();
 
+    // MainWindow インスタンスを生成します
     let main_window: MainWindow = MainWindow::new().unwrap();
     main_window.set_darkMode(dark_mode);
 
@@ -23,7 +24,7 @@ fn main() {
     let mut win_y: Option<i32> = None;
     let last_window_metrics = std::rc::Rc::new(RefCell::new(None::<WindowMetrics>));
 
-    // Load persisted window metrics (if any) and pass to UI so it can restore size and position.
+    // 保存されたウィンドウメトリクスを読み込み、UIに渡してサイズと位置を復元します
     if let Some(cfg) = load_window_metrics() {
         main_window.set_savedWidthPx(cfg.width);
         main_window.set_savedHeightPx(cfg.height);
@@ -33,19 +34,20 @@ fn main() {
 
     let current_date = Local::now();
 
-    // Set initial calendar
+    // 初期カレンダーを設定します
     update_calendar(&main_window, current_date);
 
+    // 前月ボタンのクリックイベントを処理します
     let main_window_weak = main_window.as_weak();
     main_window.on_prev_month(move || {
         let window = main_window_weak.upgrade().unwrap();
-        // parse current displayed month/year in format yyyy年mm月 (or yyyy年m月)
+        // 現在表示されている年月 (yyyy年mm月 または yyyy年m月) をパースします
         let cur = window.get_current_month();
         let digits: String = cur.chars().filter(|c| c.is_ascii_digit()).collect();
         if digits.len() >= 5 {
             let year: i32 = digits[..4].parse().unwrap_or_else(|_| Local::now().year());
             let month: u32 = digits[4..].parse().unwrap_or_else(|_| Local::now().month());
-            // compute previous month
+            // 前月を計算します
             let (ny, nm) = if month == 1 {
                 (year - 1, 12)
             } else {
@@ -62,16 +64,17 @@ fn main() {
         }
     });
 
+    // 次月ボタンのクリックイベントを処理します
     let main_window_weak = main_window.as_weak();
     main_window.on_next_month(move || {
         let window = main_window_weak.upgrade().unwrap();
-        // parse current displayed month/year in format yyyy年mm月 (or yyyy年m月)
+        // 現在表示されている年月 (yyyy年mm月 または yyyy年m月) をパースします
         let cur = window.get_current_month();
         let digits: String = cur.chars().filter(|c| c.is_ascii_digit()).collect();
         if digits.len() >= 5 {
             let year: i32 = digits[..4].parse().unwrap_or_else(|_| Local::now().year());
             let month: u32 = digits[4..].parse().unwrap_or_else(|_| Local::now().month());
-            // compute next month
+            // 次月を計算します
             let (ny, nm) = if month == 12 {
                 (year + 1, 1)
             } else {
@@ -88,6 +91,7 @@ fn main() {
         }
     });
 
+    // 「今日」ボタンのクリックイベントを処理します
     let main_window_weak = main_window.as_weak();
     main_window.on_go_today(move || {
         let window = main_window_weak.upgrade().unwrap();
@@ -95,18 +99,20 @@ fn main() {
         update_calendar(&window, today);
     });
 
+    // 日付選択イベントを処理します
     let main_window_weak = main_window.as_weak();
     main_window.on_day_selected(move |_day_idx: i32| {
         let _window = main_window_weak.upgrade().unwrap();
-        // The selected-date is already updated in the UI
+        // 選択された日付はすでにUI側で更新されています
     });
 
+    // ウィンドウのメトリクスが変更されたときに保存します
     let main_window_weak = main_window.as_weak();
     let metrics_storage = last_window_metrics.clone();
     main_window.on_tick(move || {
         let window = main_window_weak.upgrade().unwrap();
         let size = window.get_window_size();
-        // 標準出力に出す
+        // 標準出力に出力します
         println!(
             "Window Rect Changed: ({},{}) {}x{}",
             window.window().position().x,
@@ -142,7 +148,7 @@ fn main() {
         if let Some(_x) = win_x
             && let Some(_y) = win_y
         {
-            // TODO: Set window position using proper Slint API
+            // TODO: Slint の適切なAPIを使用してウィンドウ位置を設定します
             // window.window().set_position(slint::api::WindowPosition { x, y });
             window.window().set_position(PhysicalPosition::new(_x, _y));
         }
@@ -155,15 +161,15 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
     let year = date.year();
     let month = date.month();
 
-    // Format month/year as Japanese: yyyy年mm月 (zero-padded month)
+    // 年月を日本語形式 (yyyy年mm月) にフォーマットします
     window.set_current_month(format!("{:04}年{:02}月", year, month).into());
 
-    // Generate calendar grid
+    // カレンダーグリッドを生成します
     let first_day = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let weekday = first_day.weekday();
-    let first_weekday = weekday.number_from_sunday() as i32 - 1; // 0=Sunday
+    let first_weekday = weekday.number_from_sunday() as i32 - 1; // 0=日曜日
 
-    // Get the number of days in the month
+    // 月の日数を取得します
     let days_in_month = if month == 12 {
         (NaiveDate::from_ymd_opt(year + 1, 1, 1).unwrap()
             - NaiveDate::from_ymd_opt(year, 12, 1).unwrap())
@@ -174,22 +180,22 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
         .num_days() as i32
     };
 
-    // Create days array
+    // 日付配列を作成します
     let mut days: Vec<i32> = vec![0; first_weekday as usize];
     for day in 1..=days_in_month {
         days.push(day);
     }
 
-    // Determine number of week rows needed (4..=6)
+    // 必要な週の行数 (4から6) を決定します
     let total_slots = first_weekday as i32 + days_in_month;
     let num_rows = ((total_slots + 6) / 7) as i32; // ceiling division
 
-    // Pad to complete the grid (num_rows * 7 cells)
+    // グリッドを完成させるためにパディングします (num_rows * 7 セル)
     while days.len() < (num_rows as usize * 7) {
         days.push(0);
     }
 
-    // Build holiday name list (same length as days grid)
+    // 祝日名リストを作成します (days グリッドと同じ長さ)
     let jpholiday = JPHoliday::new();
     let mut holiday_names: Vec<slint::SharedString> = vec![slint::SharedString::new(); days.len()];
     for (idx, day) in days.iter().enumerate() {
@@ -202,13 +208,13 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
         }
     }
 
-    // Set the days and number of rows properties
+    // 日付と行数のプロパティを設定します
     window.set_days(std::rc::Rc::new(slint::VecModel::from(days)).into());
     window.set_holiday_names(std::rc::Rc::new(slint::VecModel::from(holiday_names)).into());
     window.set_num_rows(num_rows);
 }
 
-// Return true if system prefers dark mode (Windows registry). Defaults to false.
+// Windows のレジストリをチェックして、システムがダークモードを優先するかどうかを返します。デフォルトは false です。
 #[cfg(windows)]
 fn system_dark_mode() -> bool {
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
@@ -224,8 +230,8 @@ fn system_dark_mode() -> bool {
 
 #[cfg(target_os = "macos")]
 fn system_dark_mode() -> bool {
-    // On macOS, use the `defaults` command to read AppleInterfaceStyle.
-    // If it returns "Dark", we consider system in dark mode.
+    // macOS では `defaults` コマンドを使用して AppleInterfaceStyle を読み取ります。
+    // "Dark" が返された場合、システムはダークモードであると見なします。
     use std::process::Command;
     if let Ok(output) = Command::new("defaults")
         .arg("read")
@@ -246,6 +252,7 @@ fn system_dark_mode() -> bool {
     true
 }
 
+// ウィンドウのメトリクスを保持するための構造体
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 struct WindowMetrics {
     width: f32,
@@ -254,6 +261,7 @@ struct WindowMetrics {
     y: Option<i32>,
 }
 
+// 設定ファイルのパスを返します
 fn config_file_path() -> Option<PathBuf> {
     if let Some(mut dir) = dirs::config_dir() {
         dir.push("slint_calendar");
@@ -264,6 +272,7 @@ fn config_file_path() -> Option<PathBuf> {
     None
 }
 
+// 設定ファイルからウィンドウメトリクスを読み込みます
 fn load_window_metrics() -> Option<WindowMetrics> {
     let path = config_file_path()?;
     if path.exists() {
@@ -276,6 +285,7 @@ fn load_window_metrics() -> Option<WindowMetrics> {
     None
 }
 
+// ウィンドウメトリクスを設定ファイルに保存します
 fn save_window_metrics(cfg: &WindowMetrics) -> Result<(), std::io::Error> {
     if let Some(path) = config_file_path() {
         let tmp = path.with_extension("json.tmp");

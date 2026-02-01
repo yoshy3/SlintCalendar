@@ -6,37 +6,48 @@ export struct Size {
     height: length,
 }
 
+// 1日分のセルを表すコンポーネント
 component DayCell inherits Rectangle {
-    in property <int> day-num;
-    in property <int> weekday; // 0=Sun .. 6=Sat
-    in property <string> holiday-name;
-    in property <bool> darkMode: false;
-    in property <length> cellSize: 64px;
-    in property <length> font-sz: 28px;
-    callback day-clicked;
+    // --- Properties ---
+    in property <int> day-num; // 日付 (1-31)
+    in property <int> weekday; // 曜日 (0=日曜 .. 6=土曜)
+    in property <string> holiday-name; // 祝日名
+    in property <bool> darkMode: false; // ダークモードが有効か
+    in property <length> cellSize: 64px; // セルのサイズ
+    in property <length> font-sz: 28px; // フォントサイズ
+
+    // --- Callbacks ---
+    callback day-clicked; // 日付がクリックされたときのコールバック
+
+    // --- Style ---
     width: root.cellSize;
     height: root.cellSize;
     background: transparent;
+
+    // 日付のテキスト
     Text {
         text: root.day-num > 0 ? ("" + root.day-num) : "";
         horizontal-alignment: center;
         vertical-alignment: center;
         font-size: root.font-sz;
+        // 日付の色を曜日や祝日に応じて変更
         color: root.day-num > 0 ? (
-            root.holiday-name != "" ? (root.darkMode ? #ff6b6b : #d9534f) : (
-                root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : (
-                    root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000)
+            root.holiday-name != "" ? (root.darkMode ? #ff6b6b : #d9534f) : ( // 祝日
+                root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : ( // 日曜日
+                    root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000) // 土曜日・平日
                 )
             )
         ) : (root.darkMode ? #9ca3af : #000000);
     }
     
+    // クリックを検出するためのタッチエリア
     ta := TouchArea {
         clicked => {
             root.day-clicked();
         }
     }
 
+    // ホバー時に祝日名を表示するツールチップ
     Rectangle {
         visible: ta.has_hover && root.holiday-name != "";
         x: 0px;
@@ -57,12 +68,18 @@ component DayCell inherits Rectangle {
     }
 }
 
+// テキストラベル付きの再利用可能なアイコンボタン
 component IconButton inherits Rectangle {
-    in property <string> label;
+    // --- Properties ---
+    in property <string> label; // ボタンのラベル
     in property <length> btn-width: 48px;
     in property <length> btn-height: 48px;
     in property <bool> darkMode: false;
+
+    // --- Callbacks ---
     callback clicked;
+
+    // --- Style ---
     width: root.btn-width;
     height: root.btn-height;
     in property <brush> bgColor: #ffffff;
@@ -85,17 +102,20 @@ component IconButton inherits Rectangle {
     }
 }
 
+// メインウィンドウコンポーネント
 export component MainWindow inherits Window {
     title: "Slint Calendar";
     min-width: 210px;
     min-height: 350px;
 
-    // persisted window metrics (pixels)
+    // --- Persisted Window Metrics ---
+    // 保存されたウィンドウのメトリクス (ピクセル単位)
     in-out property <float> savedWidthPx: 0.0;
     in-out property <float> savedHeightPx: 0.0;
 
-    // Restore saved size once shortly after startup and periodically request saving
-    // Restore Timer: triggers once to apply saved width/height (if available)
+    // --- Timers ---
+    // 保存されたサイズを起動直後に一度だけ適用し、定期的に保存を要求するためのタイマー
+    // Restore Timer: 保存された幅/高さを適用するために一度だけトリガーされます (利用可能な場合)
     Timer {
         running: true;
         interval: 50ms;
@@ -106,21 +126,23 @@ export component MainWindow inherits Window {
             if root.savedHeightPx > 0.0 {
                 root.height = root.savedHeightPx * 1px;
             }
-            // stop further triggers
+            // さらなるトリガーを停止
             self.running = false;
         }
     }
 
-    // `scale` is calculated based on the window's width to provide responsive UI scaling.
+    // `scale` はウィンドウの幅に基づいて計算され、レスポンシブなUIスケーリングを提供します。
     pure function scale() -> float {
         let base = (root.width / 1px) / 600.0;
-        // Clamp the scale factor to a reasonable range to prevent extreme sizes.
+        // 極端なサイズを防ぐために、スケール係数を妥当な範囲にクランプします。
         return base < 0.4 ? 0.4 : (base > 3.0 ? 3.0 : base);
     }
     
+    // --- Properties for UI State ---
     in-out property <bool> darkMode: false;
     background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
+    // マウスホイールのスクロールで月をナビゲートするための TouchArea
     TouchArea {
         width: root.width;
         height: root.height;
@@ -136,11 +158,13 @@ export component MainWindow inherits Window {
         }
     }
 
-    // ウィンドウのサイズを Size 構造体型のプロパティで保持する
+    // ウィンドウのサイズを Size 構造体型のプロパティで保持します
     out property<Size> window-size: { width: root.width, height: root.height };
 
+    // Rust側へ定期的に通知を送るためのコールバック
     callback tick;
 
+    // 1秒ごとに tick() を呼び出すタイマー
     timer := Timer {
         interval: 1s;
         running: true;
@@ -150,11 +174,13 @@ export component MainWindow inherits Window {
     }
 
 
+
+    // --- UI Layout ---
     VerticalBox {
         spacing: 10px * root.scale();
         padding: 10px * root.scale();
 
-        // Header with month/year and navigation
+        // ヘッダー：年月表示とナビゲーションボタン
         HorizontalBox {
             alignment: center;
             spacing: 10px;
@@ -173,7 +199,7 @@ export component MainWindow inherits Window {
             IconButton { label: root.darkMode ? "☀" : "🌙"; btn-width: 56px * root.scale(); btn-height: 40px * root.scale(); darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
         }
 
-        // Day labels (Japanese)
+        // 曜日のラベル (日本語)
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -186,14 +212,15 @@ export component MainWindow inherits Window {
             Text { text: "土"; font-weight: 700; horizontal-alignment: center; color: root.darkMode ? #60a5fa : #3b82f6; font-size: 28 * root.scale() * 1px; width: 64 * root.scale() * 1px; }
         }
 
-        // Separator under weekday header
+        // 曜日ヘッダーの下の区切り線
         Rectangle {
             width: 100%;
             height: 1 * root.scale() * 1px;
             background: root.darkMode ? #374151 : #e6e6e6;
         }
 
-        // Calendar grid - Week 1
+        // --- カレンダーグリッド ---
+        // 1週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -207,7 +234,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(6); holiday-name: root.get-holiday(6); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
         }
 
-        // Week 2
+        // 2週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -221,7 +248,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(13); holiday-name: root.get-holiday(13); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
         }
 
-        // Week 3
+        // 3週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -235,7 +262,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(20); holiday-name: root.get-holiday(20); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
         }
 
-        // Week 4
+        // 4週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -249,7 +276,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(27); holiday-name: root.get-holiday(27); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
         }
 
-        // Week 5
+        // 5週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -263,7 +290,7 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(34); holiday-name: root.get-holiday(34); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
         }
 
-        // Week 6
+        // 6週目
         HorizontalBox {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
@@ -277,23 +304,26 @@ export component MainWindow inherits Window {
             DayCell { day-num: root.get-day(41); holiday-name: root.get-holiday(41); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
         }
 
-        // (selected-date display removed)
+        // (選択された日付の表示は削除)
     }
 
-    // Callbacks
+    // --- Callbacks ---
+    // Rust側で処理されるコールバック
     callback prev-month();
     callback next-month();
     callback go-today();
     callback day-selected(int);
 
-    // Properties
+    // --- Properties ---
+    // Rust側から設定されるプロパティ
     in-out property <string> current-month: "2026年01月";
     in-out property <string> selected-date: "No date selected";
     in-out property <int> num-rows: 6;
     in-out property <[int]> days: [0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,0,0,0,0];
     in-out property <[string]> holiday-names: [];
 
-    // Helper function
+    // --- Helper Functions ---
+    // インデックスに基づいて日付を取得するヘルパー関数
     pure function get-day(index: int) -> int {
         if index >= 0 && index < days.length {
             return days[index];
@@ -301,6 +331,7 @@ export component MainWindow inherits Window {
         return 0;
     }
 
+    // インデックスに基づいて祝日名を取得するヘルパー関数
     pure function get-holiday(index: int) -> string {
         if index >= 0 && index < holiday-names.length {
             return holiday-names[index];
