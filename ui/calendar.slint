@@ -99,6 +99,21 @@ export component MainWindow inherits Window {
     in-out property <bool> darkMode: false;
     background: root.darkMode ? @linear-gradient(90deg, #0f1724, #071226) : @linear-gradient(90deg, #f0f0f0, #ffffff);
 
+    TouchArea {
+        width: root.width;
+        height: root.height;
+        scroll-event(event) => {
+            if (event.delta-y > 0) {
+                root.prev-month();
+                return accept;
+            } else if (event.delta-y < 0) {
+                root.next-month();
+                return accept;
+            }
+            return reject;
+        }
+    }
+
     // ウィンドウのサイズを Size 構造体型のプロパティで保持する
     out property<Size> window-size: { width: root.width, height: root.height };
 
