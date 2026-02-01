@@ -2,6 +2,7 @@ slint::include_modules!();
 use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
 use serde::{Deserialize, Serialize};
 use slint::PhysicalPosition;
+use std::cell::RefCell;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -19,6 +20,7 @@ fn main() {
 
     let mut win_x: Option<i32> = None;
     let mut win_y: Option<i32> = None;
+    let last_window_metrics = std::rc::Rc::new(RefCell::new(None::<WindowMetrics>));
 
     // Load persisted window metrics (if any) and pass to UI so it can restore size and position.
     if let Some(cfg) = load_window_metrics() {
@@ -99,6 +101,7 @@ fn main() {
     });
 
     let main_window_weak = main_window.as_weak();
+    let metrics_storage = last_window_metrics.clone();
     main_window.on_tick(move || {
         let window = main_window_weak.upgrade().unwrap();
         let size = window.get_window_size();
@@ -118,8 +121,16 @@ fn main() {
             y: Some(window.window().position().y),
         };
 
-        if let Err(e) = save_window_metrics(&cfg) {
-            eprintln!("Failed to save window metrics: {}", e);
+        let changed = {
+            let stored = metrics_storage.borrow();
+            stored.as_ref().map(|prev| prev != &cfg).unwrap_or(true)
+        };
+
+        if changed {
+            if let Err(e) = save_window_metrics(&cfg) {
+                eprintln!("Failed to save window metrics: {}", e);
+            }
+            *metrics_storage.borrow_mut() = Some(cfg.clone());
         }
     });
 
@@ -220,7 +231,7 @@ fn system_dark_mode() -> bool {
     true
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 struct WindowMetrics {
     width: f32,
     height: f32,
