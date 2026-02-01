@@ -9,6 +9,7 @@ export struct Size {
 component DayCell inherits Rectangle {
     in property <int> day-num;
     in property <int> weekday; // 0=Sun .. 6=Sat
+    in property <string> holiday-name;
     in property <bool> darkMode: false;
     in property <length> cellSize: 64px;
     in property <length> font-sz: 28px;
@@ -22,15 +23,36 @@ component DayCell inherits Rectangle {
         vertical-alignment: center;
         font-size: root.font-sz;
         color: root.day-num > 0 ? (
-            root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : (
-                root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000)
+            root.holiday-name != "" ? (root.darkMode ? #ff6b6b : #d9534f) : (
+                root.weekday == 0 ? (root.darkMode ? #ff6b6b : #d9534f) : (
+                    root.weekday == 6 ? (root.darkMode ? #60a5fa : #3b82f6) : (root.darkMode ? #e5e7eb : #000000)
+                )
             )
         ) : (root.darkMode ? #9ca3af : #000000);
     }
     
-    TouchArea {
+    ta := TouchArea {
         clicked => {
             root.day-clicked();
+        }
+    }
+
+    Rectangle {
+        visible: ta.has_hover && root.holiday-name != "";
+        x: 0px;
+        y: -26px;
+        width: root.cellSize * 2;
+        height: 22px;
+        background: root.darkMode ? #111827 : #ffffff;
+        border-width: 1px;
+        border-color: root.darkMode ? #374151 : #d1d5db;
+        border-radius: 4px;
+        Text {
+            text: root.holiday-name;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            font-size: 12px;
+            color: root.darkMode ? #e5e7eb : #111827;
         }
     }
 }
@@ -176,13 +198,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 1;
-            DayCell { day-num: root.get-day(0); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
-            DayCell { day-num: root.get-day(1); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
-            DayCell { day-num: root.get-day(2); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
-            DayCell { day-num: root.get-day(3); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(3) > 0) { root.selected-date = "Selected: " + root.get-day(3); root.day-selected(3); } } }
-            DayCell { day-num: root.get-day(4); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(4) > 0) { root.selected-date = "Selected: " + root.get-day(4); root.day-selected(4); } } }
-            DayCell { day-num: root.get-day(5); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(5) > 0) { root.selected-date = "Selected: " + root.get-day(5); root.day-selected(5); } } }
-            DayCell { day-num: root.get-day(6); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
+            DayCell { day-num: root.get-day(0); holiday-name: root.get-holiday(0); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(0) > 0) { root.selected-date = "Selected: " + root.get-day(0); root.day-selected(0); } } }
+            DayCell { day-num: root.get-day(1); holiday-name: root.get-holiday(1); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(1) > 0) { root.selected-date = "Selected: " + root.get-day(1); root.day-selected(1); } } }
+            DayCell { day-num: root.get-day(2); holiday-name: root.get-holiday(2); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(2) > 0) { root.selected-date = "Selected: " + root.get-day(2); root.day-selected(2); } } }
+            DayCell { day-num: root.get-day(3); holiday-name: root.get-holiday(3); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(3) > 0) { root.selected-date = "Selected: " + root.get-day(3); root.day-selected(3); } } }
+            DayCell { day-num: root.get-day(4); holiday-name: root.get-holiday(4); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(4) > 0) { root.selected-date = "Selected: " + root.get-day(4); root.day-selected(4); } } }
+            DayCell { day-num: root.get-day(5); holiday-name: root.get-holiday(5); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(5) > 0) { root.selected-date = "Selected: " + root.get-day(5); root.day-selected(5); } } }
+            DayCell { day-num: root.get-day(6); holiday-name: root.get-holiday(6); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(6) > 0) { root.selected-date = "Selected: " + root.get-day(6); root.day-selected(6); } } }
         }
 
         // Week 2
@@ -190,13 +212,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 2;
-            DayCell { day-num: root.get-day(7); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
-            DayCell { day-num: root.get-day(8); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
-            DayCell { day-num: root.get-day(9); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
-            DayCell { day-num: root.get-day(10); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(10) > 0) { root.selected-date = "Selected: " + root.get-day(10); root.day-selected(10); } } }
-            DayCell { day-num: root.get-day(11); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(11) > 0) { root.selected-date = "Selected: " + root.get-day(11); root.day-selected(11); } } }
-            DayCell { day-num: root.get-day(12); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(12) > 0) { root.selected-date = "Selected: " + root.get-day(12); root.day-selected(12); } } }
-            DayCell { day-num: root.get-day(13); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
+            DayCell { day-num: root.get-day(7); holiday-name: root.get-holiday(7); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(7) > 0) { root.selected-date = "Selected: " + root.get-day(7); root.day-selected(7); } } }
+            DayCell { day-num: root.get-day(8); holiday-name: root.get-holiday(8); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(8) > 0) { root.selected-date = "Selected: " + root.get-day(8); root.day-selected(8); } } }
+            DayCell { day-num: root.get-day(9); holiday-name: root.get-holiday(9); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(9) > 0) { root.selected-date = "Selected: " + root.get-day(9); root.day-selected(9); } } }
+            DayCell { day-num: root.get-day(10); holiday-name: root.get-holiday(10); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(10) > 0) { root.selected-date = "Selected: " + root.get-day(10); root.day-selected(10); } } }
+            DayCell { day-num: root.get-day(11); holiday-name: root.get-holiday(11); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(11) > 0) { root.selected-date = "Selected: " + root.get-day(11); root.day-selected(11); } } }
+            DayCell { day-num: root.get-day(12); holiday-name: root.get-holiday(12); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(12) > 0) { root.selected-date = "Selected: " + root.get-day(12); root.day-selected(12); } } }
+            DayCell { day-num: root.get-day(13); holiday-name: root.get-holiday(13); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(13) > 0) { root.selected-date = "Selected: " + root.get-day(13); root.day-selected(13); } } }
         }
 
         // Week 3
@@ -204,13 +226,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 3;
-            DayCell { day-num: root.get-day(14); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
-            DayCell { day-num: root.get-day(15); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
-            DayCell { day-num: root.get-day(16); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
-            DayCell { day-num: root.get-day(17); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(17) > 0) { root.selected-date = "Selected: " + root.get-day(17); root.day-selected(17); } } }
-            DayCell { day-num: root.get-day(18); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(18) > 0) { root.selected-date = "Selected: " + root.get-day(18); root.day-selected(18); } } }
-            DayCell { day-num: root.get-day(19); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(19) > 0) { root.selected-date = "Selected: " + root.get-day(19); root.day-selected(19); } } }
-            DayCell { day-num: root.get-day(20); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
+            DayCell { day-num: root.get-day(14); holiday-name: root.get-holiday(14); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(14) > 0) { root.selected-date = "Selected: " + root.get-day(14); root.day-selected(14); } } }
+            DayCell { day-num: root.get-day(15); holiday-name: root.get-holiday(15); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(15) > 0) { root.selected-date = "Selected: " + root.get-day(15); root.day-selected(15); } } }
+            DayCell { day-num: root.get-day(16); holiday-name: root.get-holiday(16); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(16) > 0) { root.selected-date = "Selected: " + root.get-day(16); root.day-selected(16); } } }
+            DayCell { day-num: root.get-day(17); holiday-name: root.get-holiday(17); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(17) > 0) { root.selected-date = "Selected: " + root.get-day(17); root.day-selected(17); } } }
+            DayCell { day-num: root.get-day(18); holiday-name: root.get-holiday(18); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(18) > 0) { root.selected-date = "Selected: " + root.get-day(18); root.day-selected(18); } } }
+            DayCell { day-num: root.get-day(19); holiday-name: root.get-holiday(19); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(19) > 0) { root.selected-date = "Selected: " + root.get-day(19); root.day-selected(19); } } }
+            DayCell { day-num: root.get-day(20); holiday-name: root.get-holiday(20); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(20) > 0) { root.selected-date = "Selected: " + root.get-day(20); root.day-selected(20); } } }
         }
 
         // Week 4
@@ -218,13 +240,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 4;
-            DayCell { day-num: root.get-day(21); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
-            DayCell { day-num: root.get-day(22); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
-            DayCell { day-num: root.get-day(23); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
-            DayCell { day-num: root.get-day(24); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(24) > 0) { root.selected-date = "Selected: " + root.get-day(24); root.day-selected(24); } } }
-            DayCell { day-num: root.get-day(25); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(25) > 0) { root.selected-date = "Selected: " + root.get-day(25); root.day-selected(25); } } }
-            DayCell { day-num: root.get-day(26); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(26) > 0) { root.selected-date = "Selected: " + root.get-day(26); root.day-selected(26); } } }
-            DayCell { day-num: root.get-day(27); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
+            DayCell { day-num: root.get-day(21); holiday-name: root.get-holiday(21); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(21) > 0) { root.selected-date = "Selected: " + root.get-day(21); root.day-selected(21); } } }
+            DayCell { day-num: root.get-day(22); holiday-name: root.get-holiday(22); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(22) > 0) { root.selected-date = "Selected: " + root.get-day(22); root.day-selected(22); } } }
+            DayCell { day-num: root.get-day(23); holiday-name: root.get-holiday(23); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(23) > 0) { root.selected-date = "Selected: " + root.get-day(23); root.day-selected(23); } } }
+            DayCell { day-num: root.get-day(24); holiday-name: root.get-holiday(24); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(24) > 0) { root.selected-date = "Selected: " + root.get-day(24); root.day-selected(24); } } }
+            DayCell { day-num: root.get-day(25); holiday-name: root.get-holiday(25); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(25) > 0) { root.selected-date = "Selected: " + root.get-day(25); root.day-selected(25); } } }
+            DayCell { day-num: root.get-day(26); holiday-name: root.get-holiday(26); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(26) > 0) { root.selected-date = "Selected: " + root.get-day(26); root.day-selected(26); } } }
+            DayCell { day-num: root.get-day(27); holiday-name: root.get-holiday(27); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(27) > 0) { root.selected-date = "Selected: " + root.get-day(27); root.day-selected(27); } } }
         }
 
         // Week 5
@@ -232,13 +254,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 5;
-            DayCell { day-num: root.get-day(28); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
-            DayCell { day-num: root.get-day(29); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
-            DayCell { day-num: root.get-day(30); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
-            DayCell { day-num: root.get-day(31); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(31) > 0) { root.selected-date = "Selected: " + root.get-day(31); root.day-selected(31); } } }
-            DayCell { day-num: root.get-day(32); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(32) > 0) { root.selected-date = "Selected: " + root.get-day(32); root.day-selected(32); } } }
-            DayCell { day-num: root.get-day(33); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(33) > 0) { root.selected-date = "Selected: " + root.get-day(33); root.day-selected(33); } } }
-            DayCell { day-num: root.get-day(34); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
+            DayCell { day-num: root.get-day(28); holiday-name: root.get-holiday(28); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(28) > 0) { root.selected-date = "Selected: " + root.get-day(28); root.day-selected(28); } } }
+            DayCell { day-num: root.get-day(29); holiday-name: root.get-holiday(29); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(29) > 0) { root.selected-date = "Selected: " + root.get-day(29); root.day-selected(29); } } }
+            DayCell { day-num: root.get-day(30); holiday-name: root.get-holiday(30); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(30) > 0) { root.selected-date = "Selected: " + root.get-day(30); root.day-selected(30); } } }
+            DayCell { day-num: root.get-day(31); holiday-name: root.get-holiday(31); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(31) > 0) { root.selected-date = "Selected: " + root.get-day(31); root.day-selected(31); } } }
+            DayCell { day-num: root.get-day(32); holiday-name: root.get-holiday(32); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(32) > 0) { root.selected-date = "Selected: " + root.get-day(32); root.day-selected(32); } } }
+            DayCell { day-num: root.get-day(33); holiday-name: root.get-holiday(33); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(33) > 0) { root.selected-date = "Selected: " + root.get-day(33); root.day-selected(33); } } }
+            DayCell { day-num: root.get-day(34); holiday-name: root.get-holiday(34); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(34) > 0) { root.selected-date = "Selected: " + root.get-day(34); root.day-selected(34); } } }
         }
 
         // Week 6
@@ -246,13 +268,13 @@ export component MainWindow inherits Window {
             spacing: 5 * root.scale() * 1px;
             alignment: center;
             visible: root.num-rows >= 6;
-            DayCell { day-num: root.get-day(35); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
-            DayCell { day-num: root.get-day(36); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
-            DayCell { day-num: root.get-day(37); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
-            DayCell { day-num: root.get-day(38); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(38) > 0) { root.selected-date = "Selected: " + root.get-day(38); root.day-selected(38); } } }
-            DayCell { day-num: root.get-day(39); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(39) > 0) { root.selected-date = "Selected: " + root.get-day(39); root.day-selected(39); } } }
-            DayCell { day-num: root.get-day(40); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(40) > 0) { root.selected-date = "Selected: " + root.get-day(40); root.day-selected(40); } } }
-            DayCell { day-num: root.get-day(41); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
+            DayCell { day-num: root.get-day(35); holiday-name: root.get-holiday(35); weekday: 0; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(35) > 0) { root.selected-date = "Selected: " + root.get-day(35); root.day-selected(35); } } }
+            DayCell { day-num: root.get-day(36); holiday-name: root.get-holiday(36); weekday: 1; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(36) > 0) { root.selected-date = "Selected: " + root.get-day(36); root.day-selected(36); } } }
+            DayCell { day-num: root.get-day(37); holiday-name: root.get-holiday(37); weekday: 2; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(37) > 0) { root.selected-date = "Selected: " + root.get-day(37); root.day-selected(37); } } }
+            DayCell { day-num: root.get-day(38); holiday-name: root.get-holiday(38); weekday: 3; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(38) > 0) { root.selected-date = "Selected: " + root.get-day(38); root.day-selected(38); } } }
+            DayCell { day-num: root.get-day(39); holiday-name: root.get-holiday(39); weekday: 4; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(39) > 0) { root.selected-date = "Selected: " + root.get-day(39); root.day-selected(39); } } }
+            DayCell { day-num: root.get-day(40); holiday-name: root.get-holiday(40); weekday: 5; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(40) > 0) { root.selected-date = "Selected: " + root.get-day(40); root.day-selected(40); } } }
+            DayCell { day-num: root.get-day(41); holiday-name: root.get-holiday(41); weekday: 6; darkMode: root.darkMode; cellSize: 64 * root.scale() * 1px; font-sz: 28 * root.scale() * 1px; day-clicked => { if (root.get-day(41) > 0) { root.selected-date = "Selected: " + root.get-day(41); root.day-selected(41); } } }
         }
 
         // (selected-date display removed)
@@ -269,6 +291,7 @@ export component MainWindow inherits Window {
     in-out property <string> selected-date: "No date selected";
     in-out property <int> num-rows: 6;
     in-out property <[int]> days: [0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,0,0,0,0,0];
+    in-out property <[string]> holiday-names: [];
 
     // Helper function
     pure function get-day(index: int) -> int {
@@ -276,6 +299,13 @@ export component MainWindow inherits Window {
             return days[index];
         }
         return 0;
+    }
+
+    pure function get-holiday(index: int) -> string {
+        if index >= 0 && index < holiday-names.length {
+            return holiday-names[index];
+        }
+        return "";
     }
 
 }

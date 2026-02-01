@@ -1,5 +1,6 @@
 slint::include_modules!();
 use chrono::{DateTime, Datelike, Local, NaiveDate, TimeZone};
+use jpholiday::jpholiday::JPHoliday;
 use serde::{Deserialize, Serialize};
 use slint::PhysicalPosition;
 use std::cell::RefCell;
@@ -188,8 +189,22 @@ fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
         days.push(0);
     }
 
+    // Build holiday name list (same length as days grid)
+    let jpholiday = JPHoliday::new();
+    let mut holiday_names: Vec<slint::SharedString> = vec![slint::SharedString::new(); days.len()];
+    for (idx, day) in days.iter().enumerate() {
+        if *day > 0 {
+            if let Some(date) = NaiveDate::from_ymd_opt(year, month, *day as u32) {
+                if let Some(name) = jpholiday.is_holiday_name(&date) {
+                    holiday_names[idx] = name.into();
+                }
+            }
+        }
+    }
+
     // Set the days and number of rows properties
     window.set_days(std::rc::Rc::new(slint::VecModel::from(days)).into());
+    window.set_holiday_names(std::rc::Rc::new(slint::VecModel::from(holiday_names)).into());
     window.set_num_rows(num_rows);
 }
 
