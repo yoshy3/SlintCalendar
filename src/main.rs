@@ -39,6 +39,22 @@ fn main() {
     // 初期カレンダーを設定します
     update_calendar(&main_window, current_date);
 
+    // 今日の日付を毎秒更新するためのタイマーを設定します
+    let main_window_weak = main_window.as_weak();
+    let _update_today_timer = slint::Timer::default();
+    _update_today_timer.start(
+        slint::TimerMode::Repeated,
+        std::time::Duration::from_secs(1),
+        move || {
+            if let Some(window) = main_window_weak.upgrade() {
+                let now = Local::now();
+                window.set_today_year(now.year());
+                window.set_today_month(now.month() as i32);
+                window.set_today_day(now.day() as i32);
+            }
+        },
+    );
+
     // 前月ボタンのクリックイベントを処理します
     let main_window_weak = main_window.as_weak();
     main_window.on_prev_month(move || {
@@ -162,6 +178,16 @@ fn main() {
 fn update_calendar(window: &MainWindow, date: DateTime<Local>) {
     let year = date.year();
     let month = date.month();
+
+    // 今日の日付を設定します
+    let now = Local::now();
+    window.set_today_year(now.year());
+    window.set_today_month(now.month() as i32);
+    window.set_today_day(now.day() as i32);
+
+    // 表示中の年月を設定します
+    window.set_display_year(year);
+    window.set_display_month(month as i32);
 
     // 年月を日本語形式 (yyyy年mm月) にフォーマットします
     window.set_current_month(format!("{:04}年{:02}月", year, month).into());
