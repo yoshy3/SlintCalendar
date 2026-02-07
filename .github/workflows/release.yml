@@ -69,7 +69,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           cd target/release
-          zip -r ../../${{ matrix.asset_name }} SlintCalendar.app
+          ditto -c -k --sequesterRsrc --keepParent SlintCalendar.app ../../${{ matrix.asset_name }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
