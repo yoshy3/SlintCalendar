@@ -85,12 +85,19 @@ component ImageButton inherits TouchArea {
     width: root.btn-width;
     height: root.btn-height;
 
-    Image {
-        source: root.icon;
-        colorize: root.icon-color;
-        width: 80%;
-        height: 80%;
-        image-fit: contain;
+    Rectangle {
+        background: root.has-hover ? (root.darkMode ? #374151 : #e5e7eb) : transparent;
+        border-radius: 6px;
+        
+        Image {
+            source: root.icon;
+            colorize: root.icon-color;
+            width: 80%;
+            height: 80%;
+            x: (parent.width - self.width) / 2;
+            y: (parent.height - self.height) / 2;
+            image-fit: contain;
+        }
     }
 }
 
