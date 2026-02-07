@@ -87,9 +87,9 @@ component ImageButton inherits TouchArea {
 
     Image {
         source: root.icon;
-        // colorization: root.icon-color;
-        width: 100%;
-        height: 100%;
+        colorize: root.icon-color;
+        width: 80%;
+        height: 80%;
         image-fit: contain;
     }
 }
@@ -109,7 +109,7 @@ component TextButton inherits Rectangle {
     width: root.btn-width;
     height: root.btn-height;
     in property <brush> bgColor: #ffffff;
-    background: root.darkMode ? #2d3748 : root.bgColor;
+    background: root.darkMode ? #222222 : root.bgColor;
     border-width: 1px;
     border-color: #e6e6e6;
     border-radius: 6px;
@@ -216,7 +216,7 @@ export component MainWindow inherits Window {
 
             Text {
                 text: root.current-month;
-                font-size: 28 * root.scale() * 1px;
+                font-size: 32 * root.scale() * 1px;
                 font-weight: 700;
                 color: root.darkMode ? #e6e6e6 : #222222;
             }
