@@ -46,6 +46,12 @@ jobs:
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: Package macOS app
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          chmod +x build_app.sh
+          ./build_app.sh ${{ matrix.target }}
+
       - name: Create archive (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
@@ -53,11 +59,17 @@ jobs:
           $exe = "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}"
           Compress-Archive -Path $exe -DestinationPath ${{ matrix.asset_name }}
 
-      - name: Create archive (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Create archive (Linux)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd target/${{ matrix.target }}/release
           zip ../../../${{ matrix.asset_name }} ${{ matrix.artifact_name }}
+
+      - name: Create archive (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          cd target/release
+          zip -r ../../${{ matrix.asset_name }} SlintCalendar.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
