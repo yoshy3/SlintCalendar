@@ -73,8 +73,29 @@ component DayCell inherits Rectangle {
     }
 }
 
-// テキストラベル付きの再利用可能なアイコンボタン
-component IconButton inherits Rectangle {
+// 画像付きの再利用可能なアイコンボタン
+component ImageButton inherits TouchArea {
+    // --- Properties ---
+    in property <image> icon;
+    in property <length> btn-width: 48px;
+    in property <length> btn-height: 48px;
+    in property <color> icon-color: root.darkMode ? #e6e6e6 : #222222;
+    in property <bool> darkMode: false;
+
+    width: root.btn-width;
+    height: root.btn-height;
+
+    Image {
+        source: root.icon;
+        // colorization: root.icon-color;
+        width: 100%;
+        height: 100%;
+        image-fit: contain;
+    }
+}
+
+// テキストラベル付きの再利用可能なボタン
+component TextButton inherits Rectangle {
     // --- Properties ---
     in property <string> label; // ボタンのラベル
     in property <length> btn-width: 48px;
@@ -191,7 +212,7 @@ export component MainWindow inherits Window {
             alignment: center;
             spacing: 10px;
 
-            IconButton { label: "←"; btn-width: 48px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.prev-month(); } }
+            ImageButton { icon: @image-url("arrow-left.svg"); btn-width: 48px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.prev-month(); } }
 
             Text {
                 text: root.current-month;
@@ -200,9 +221,9 @@ export component MainWindow inherits Window {
                 color: root.darkMode ? #e6e6e6 : #222222;
             }
 
-            IconButton { label: "→"; btn-width: 48px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.next-month(); } }
-            IconButton { label: "今日"; btn-width: 80px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.go-today(); } }
-            IconButton { label: root.darkMode ? "☀" : "🌙"; btn-width: 56px * root.scale(); btn-height: 40px * root.scale(); darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
+            ImageButton { icon: @image-url("arrow-right.svg"); btn-width: 48px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.next-month(); } }
+            TextButton { label: "今日"; btn-width: 80px * root.scale(); btn-height: 48px * root.scale(); darkMode: root.darkMode; clicked => { root.go-today(); } }
+            ImageButton { icon: root.darkMode ? @image-url("sun.svg") : @image-url("moon.svg"); btn-width: 56px * root.scale(); btn-height: 40px * root.scale(); darkMode: root.darkMode; clicked => { root.darkMode = !root.darkMode; } }
         }
 
         // 曜日のラベル (日本語)
