@@ -139,14 +139,6 @@ fn main() {
                 update_calendar(&window, dt);
             }
         }
-        // 標準出力に出力します
-        println!(
-            "Window Rect Changed: ({},{}) {}x{}",
-            window.window().position().x,
-            window.window().position().y,
-            size.width,
-            size.height
-        );
 
         let cfg = WindowMetrics {
             width: size.width,
@@ -161,6 +153,15 @@ fn main() {
         };
 
         if changed {
+            // 標準出力に出力します
+            println!(
+                "Window Rect Changed: ({},{}) {}x{}",
+                window.window().position().x,
+                window.window().position().y,
+                size.width,
+                size.height
+            );
+
             if let Err(e) = save_window_metrics(&cfg) {
                 eprintln!("Failed to save window metrics: {}", e);
             }
