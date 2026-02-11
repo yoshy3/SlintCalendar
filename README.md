@@ -56,7 +56,7 @@ cargo build --release
 
 ## ライセンス
 
-MIT License
+GPL-3.0 License
 
 ## macOS版の配布ファイルについて
 macOS版の配布ファイルは、署名されていないため起動時に警告が表示される場合があります。
