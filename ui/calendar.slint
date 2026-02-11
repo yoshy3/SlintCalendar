@@ -14,7 +14,7 @@ component DayCell inherits Rectangle {
     in property <string> holiday-name; // 祝日名
     in property <bool> darkMode: false; // ダークモードが有効か
     in property <length> cellSize: 64px; // セルのサイズ
-    in property <length> font-sz: 28px; // フォントサイズ
+    in property <length> font-sz: 32px; // フォントサイズ
     in property <bool> is-today: false; // 今日の日付かどうか
 
     // --- Callbacks ---
@@ -118,7 +118,7 @@ component TextButton inherits Rectangle {
     in property <brush> bgColor: #ffffff;
     background: root.darkMode ? #222222 : root.bgColor;
     border-width: 1px;
-    border-color: #e6e6e6;
+    border-color: root.darkMode ? #6b7280 : #e6e6e6;
     border-radius: 6px;
 
     Text {
@@ -127,7 +127,7 @@ component TextButton inherits Rectangle {
         vertical-alignment: center;
         color: root.darkMode ? #e6e6e6 : #222222;
         font-weight: 700;
-        font-size: 17px;
+        font-size: 14px;
     }
 
     TouchArea {
@@ -223,7 +223,7 @@ export component MainWindow inherits Window {
 
             Text {
                 text: root.current-month;
-                font-size: 32 * root.scale() * 1px;
+                font-size: 36 * root.scale() * 1px;
                 font-weight: 700;
                 color: root.darkMode ? #e6e6e6 : #222222;
             }
@@ -243,7 +243,7 @@ export component MainWindow inherits Window {
                 font-weight: 700;
                 horizontal-alignment: center;
                 color: label.color;
-                font-size: 28 * root.scale() * 1px;
+                font-size: 32 * root.scale() * 1px;
                 width: 64 * root.scale() * 1px;
             }
         }
@@ -268,7 +268,7 @@ export component MainWindow inherits Window {
                 is-today: root.is-today(week_idx * 7 + day_idx);
                 darkMode: root.darkMode;
                 cellSize: 64 * root.scale() * 1px;
-                font-sz: 28 * root.scale() * 1px;
+                font-sz: 32 * root.scale() * 1px;
                 day-clicked => {
                     if (root.get-day(week_idx * 7 + day_idx) > 0) {
                         root.selected-date = "Selected: " + root.get-day(week_idx * 7 + day_idx);
